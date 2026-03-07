@@ -5,19 +5,17 @@ import type { PipelineStage } from "@/data/pipelineStages";
 type NodeStatus = "idle" | "processing" | "complete" | "error";
 
 const categoryColors: Record<string, string> = {
-  input: "border-primary/60",
-  analysis: "border-accent/60",
-  ai: "border-warning/60",
-  fix: "border-success/60",
-  verify: "border-primary/60",
+  input: "border-blue-400/60",
+  environment: "border-purple-400/60",
+  ai: "border-green-400/60",
+  patch: "border-red-400/60",
 };
 
 const categoryGlow: Record<string, string> = {
-  input: "shadow-primary/20",
-  analysis: "shadow-accent/20",
-  ai: "shadow-warning/20",
-  fix: "shadow-success/20",
-  verify: "shadow-primary/20",
+  input: "shadow-blue-400/20",
+  environment: "shadow-purple-400/20",
+  ai: "shadow-green-400/20",
+  patch: "shadow-red-400/20",
 };
 
 interface PipelineNodeProps {

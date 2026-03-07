@@ -3,41 +3,41 @@ export interface PipelineStage {
   title: string;
   description: string;
   tech: string[];
-  category: "analysis" | "ai" | "fix" | "verify";
+  category: "input" | "environment" | "ai" | "patch";
   outputs?: string[];
 }
 
 export const pipelineStages: PipelineStage[] = [
   {
     id: 1,
-    title: "FSM Analysis & Graph Construction",
-    description: "Parses Verilog RTL, extracts FSM structure, builds state graph, and computes structural features",
-    tech: ["PyVerilog", "NetworkX", "NumPy", "AST"],
-    category: "analysis",
-    outputs: ["FSM Graph", "Feature Matrix"],
+    title: "INPUT",
+    description: "GNN weak states, 13 features, fix history, remaining states, CWE + risk score",
+    tech: ["GNN", "NumPy", "CWE DB"],
+    category: "input",
+    outputs: ["Weak States", "Feature Matrix"],
   },
   {
     id: 2,
-    title: "GNN Vulnerability Detection",
-    description: "GCN/GAT classifier analyzes graph features and flags weak/vulnerable states with risk scores",
-    tech: ["PyTorch Geometric", "GCN/GAT", "Binary Classifier"],
-    category: "ai",
-    outputs: ["Risk Scores", "Flagged States"],
+    title: "GYMNASIUM ENVIRONMENT",
+    description: "Observation space (30 values), MultiDiscrete [4×3×2], step function (apply + reward), reset function, sequential multi-state",
+    tech: ["Gymnasium", "MultiDiscrete", "Box(30)"],
+    category: "environment",
+    outputs: ["Obs Vector", "Reward Signal"],
   },
   {
     id: 3,
-    title: "RL-Driven Patch Generation",
-    description: "PPO agent selects optimal fixes for flagged states and generates patched Verilog code",
-    tech: ["PPO", "Stable Baselines3", "Gymnasium", "Jinja2"],
-    category: "fix",
-    outputs: ["Patched Verilog", "Fix Actions"],
+    title: "RL AGENT — PPO  /  ACTION SPACE",
+    description: "Policy network (PyTorch), PPO algorithm (SB3), fix specification (Cat+Param+Strict) — actions: Guard, Prune, Re-encode, Deadlock",
+    tech: ["PyTorch", "SB3", "PPO", "Guard", "Prune", "Re-encode", "Deadlock"],
+    category: "ai",
+    outputs: ["Fix Actions", "Patched RTL"],
   },
   {
     id: 4,
-    title: "Formal Verification & Scoring",
-    description: "Proves patch correctness, simulates against testbench, and computes security/area/functionality scores",
-    tech: ["SymbiYosys", "Z3", "Icarus Verilog", "SVA"],
-    category: "verify",
-    outputs: ["Proof Result", "Security Score"],
+    title: "PATCH + VERIFY + REPORT",
+    description: "Stage 08 patch Verilog, Stage 09 Icarus verify, Stage 10 report generator → patched_fsm.v + fsm_report.txt",
+    tech: ["Jinja2", "Icarus Verilog", "Reporter"],
+    category: "patch",
+    outputs: ["patched_fsm.v", "fsm_report.txt"],
   },
 ];
