@@ -1,0 +1,111 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    --background: 220 20% 6%;
+    --foreground: 160 40% 90%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 160 30% 88%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 160 30% 88%;
+
+    --primary: 160 100% 40%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 160 30% 80%;
+
+    --muted: 220 14% 14%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 280 80% 55%;
+    --accent-foreground: 280 100% 95%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 45 100% 51%;
+    --warning-foreground: 220 20% 6%;
+
+    --safe: 160 100% 40%;
+    --safe-foreground: 220 20% 6%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 16%;
+    --ring: 160 100% 40%;
+
+    --radius: 0.5rem;
+
+    --glow-primary: 0 0 20px hsl(160 100% 40% / 0.3);
+    --glow-accent: 0 0 20px hsl(280 80% 55% / 0.3);
+    --glow-warning: 0 0 20px hsl(45 100% 51% / 0.3);
+
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 160 30% 80%;
+    --sidebar-primary: 160 100% 40%;
+    --sidebar-primary-foreground: 220 20% 6%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 160 30% 80%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 160 100% 40%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: hsl(160 100% 40% / 0.25);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+  .glow-warning {
+    box-shadow: var(--glow-warning);
+  }
+  .text-glow {
+    text-shadow: 0 0 10px hsl(160 100% 40% / 0.5);
+  }
+  .scanline {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(160 100% 40% / 0.03) 2px,
+      hsl(160 100% 40% / 0.03) 4px
+    );
+  }
+}
