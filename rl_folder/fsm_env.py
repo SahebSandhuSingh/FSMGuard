@@ -22,24 +22,29 @@ class FSMEnv(gym.Env):
 
         self.action_space = spaces.Discrete(4)
 
-    # ✅ THIS FUNCTION MUST EXIST
     def extract_features(self):
 
         in_edges = self.graph.in_degree(self.node)
         out_edges = self.graph.out_degree(self.node)
 
-        neighbors = list(self.graph.neighbors(self.node))
+        neighbors = len(list(self.graph.neighbors(self.node)))
 
-        loop = 1 if self.graph.has_edge(self.node, self.node) else 0
+        loop = int(self.graph.has_edge(self.node, self.node))
+
+        deadlock = int(out_edges == 0)
+
+        privileged = int(in_edges > 2)
+
+        unreachable = 0
 
         features = np.array([
             in_edges,
             out_edges,
-            len(neighbors),
+            neighbors,
             loop,
-            1 if out_edges > 3 else 0,
-            0,
-            0
+            deadlock,
+            privileged,
+            unreachable
         ], dtype=np.float32)
 
         return features

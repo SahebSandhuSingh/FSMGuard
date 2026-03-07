@@ -12,7 +12,7 @@ model = DQN(
     verbose=1
 )
 
-model.learn(total_timesteps=100000)
+model.learn(total_timesteps=200000)
 
 model.save("fsm_security_agent")
 

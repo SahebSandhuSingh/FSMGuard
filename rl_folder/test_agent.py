@@ -22,7 +22,7 @@ actions = [
 # Statistics counter
 stats = {action: 0 for action in actions}
 
-runs = 100
+runs = 10
 
 print("Running FSM Security Mitigation Evaluation\n")
 
