@@ -1,0 +1,30 @@
+[
+  {
+    "state_name": "MEM_ACC",
+    "risk_score": 0.87,
+    "cwe": "CWE-1245",
+    "features": [
+      4,
+      1,
+      0,
+      2,
+      0.76,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1
+    ],
+    "neighbors_in": [
+      "AUTH",
+      "DEBUG",
+      "IDLE"
+    ],
+    "neighbors_out": [
+      "HALT"
+    ]
+  }
+]

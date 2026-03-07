@@ -24,4 +24,3 @@ export interface AnalysisResults {
   states: AnalysisState[];
   rewardHistory: RewardHistoryPoint[];
 }
-
