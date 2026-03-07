@@ -1,0 +1,47 @@
+{
+  "states": [
+    "IDLE",
+    "AUTH",
+    "CHECK",
+    "ACCESS",
+    "LOCK"
+  ],
+  "transitions": [
+    {
+      "src": "IDLE",
+      "dst": "AUTH",
+      "condition": "login_req"
+    },
+    {
+      "src": "AUTH",
+      "dst": "CHECK",
+      "condition": "password_ok"
+    },
+    {
+      "src": "AUTH",
+      "dst": "LOCK",
+      "condition": "auth_fail"
+    },
+    {
+      "src": "CHECK",
+      "dst": "ACCESS",
+      "condition": "auth_valid"
+    },
+    {
+      "src": "CHECK",
+      "dst": "LOCK",
+      "condition": "always"
+    },
+    {
+      "src": "ACCESS",
+      "dst": "IDLE",
+      "condition": "always"
+    },
+    {
+      "src": "LOCK",
+      "dst": "IDLE",
+      "condition": "always"
+    }
+  ],
+  "reset_state": "IDLE"
+}
