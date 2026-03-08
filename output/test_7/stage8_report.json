@@ -1,0 +1,12 @@
+{
+  "state_name": "EXECUTE",
+  "cwe": "CWE-1298",
+  "risk_score": 0.74,
+  "fix_category": "State Re-encoding",
+  "fix_parameter": "hamming",
+  "fix_strictness": "soft",
+  "fallback": "IDLE",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - State Re-encoding\n// CWE: CWE-1298\n// Parameter: hamming\n// Strictness: soft\n// ============================================================\n// This patch re-encodes state EXECUTE for fault resistance\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Re-encoded by FSMGuard - Hamming distance >= 3\n// Protects against single and double bit-flip attacks\nlocalparam EXECUTE_NEW = 4'b1011;  // Hamming distance >= 3 from all states\n\n// Update state encoding\nalways @(posedge clk) begin\n    if (current_state == EXECUTE) begin\n        // Use new encoding with enhanced fault resistance\n        encoded_state = EXECUTE_NEW;\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_7/patched_fsm.v"
+}

@@ -1,0 +1,14 @@
+{
+  "job_id": "job-8ce00c054713",
+  "filename": "vulnerable_fsm.v",
+  "stages": {
+    "stage1": {
+      "success": false,
+      "error": "Object of type Source is not JSON serializable",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/sahebsandhu/FSMGuard/backend/pipeline_runner.py\", line 79, in run_stage1_parsing\n    json.dump(result, f, indent=2)\n  File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/__init__.py\", line 179, in dump\n    for chunk in iterable:\n  File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 439, in _iterencode\n    o = _default(o)\n        ^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nTypeError: Object of type Source is not JSON serializable\n"
+    }
+  },
+  "workspace": "/Users/sahebsandhu/FSMGuard/workspace/job-8ce00c054713",
+  "error": "Stage 1 failed",
+  "status": "failed"
+}

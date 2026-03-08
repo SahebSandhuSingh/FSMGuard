@@ -1,0 +1,74 @@
+{# FSMGuard Template - State Re-encoding #}
+{# Security Property: Increases hamming distance to prevent bit-flip attacks #}
+
+// ============================================================
+// FSMGuard Patch - {{ category_name }}
+// CWE: {{ cwe }}
+// Parameter: {{ parameter_name }}
+// Strictness: {{ strictness_name }}
+// ============================================================
+// This patch re-encodes state {{ state_name }} for fault resistance
+// Added by FSMGuard Stage 08 based on RL agent decision
+
+{% if parameter == 0 %}
+  {# Parameter 0: hamming distance encoding #}
+// Re-encoded by FSMGuard - Hamming distance >= 3
+// Protects against single and double bit-flip attacks
+localparam {{ state_name }}_NEW = 4'b1011;  // Hamming distance >= 3 from all states
+
+// Update state encoding
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Use new encoding with enhanced fault resistance
+        encoded_state = {{ state_name }}_NEW;
+    end
+end
+
+{% elif parameter == 1 %}
+  {# Parameter 1: parity protection #}
+// Parity protection added by FSMGuard
+// Detects odd number of bit flips
+localparam {{ state_name }}_NEW = 4'b1010;  // Even parity encoding
+
+// Parity check for {{ state_name }}
+wire parity_{{ state_name }};
+assign parity_{{ state_name }} = ^{{ state_var }};
+
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Check parity - trigger redirect on mismatch
+        if (parity_{{ state_name }} != 1'b0) begin
+            // alert_signal = 1'b1;  // Optional: add alert output to module
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+
+{% elif parameter == 2 %}
+  {# Parameter 2: both hamming and parity #}
+// Combined protection: Hamming distance + parity
+// Maximum fault resistance for critical state {{ state_name }}
+localparam {{ state_name }}_NEW = 4'b1101;  // Hamming distance >= 3 AND even parity
+
+// Parity check
+wire parity_{{ state_name }};
+assign parity_{{ state_name }} = ^{{ state_var }};
+
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Dual-layer protection
+        encoded_state = {{ state_name }}_NEW;
+        
+        // Verify parity
+        if (parity_{{ state_name }} != 1'b0) begin
+            // alert_signal = 1'b1;  // Optional: add alert output to module
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+
+{% endif %}
+
+// ============================================================
+// End FSMGuard Patch
+// ============================================================

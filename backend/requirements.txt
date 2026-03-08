@@ -1,0 +1,27 @@
+# FSMGuard Backend Requirements
+# ================================
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Async & Background Tasks
+aiofiles==23.2.1
+
+# Data Validation
+pydantic==2.5.0
+
+# Utilities
+python-dotenv==1.0.0
+
+# CORS
+starlette==0.27.0
+
+# Note: Core FSMGuard dependencies from main requirements.txt are also needed:
+# - torch
+# - torch-geometric
+# - networkx
+# - stable-baselines3
+# - pyyaml
+# - pyverilog (optional)

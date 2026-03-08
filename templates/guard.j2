@@ -1,0 +1,102 @@
+{# FSMGuard Template - Guard Insertion #}
+{# Security Property: Adds authentication/authorization checks before state transition #}
+
+// ============================================================
+// FSMGuard Patch - {{ category_name }}
+// CWE: {{ cwe }}
+// Parameter: {{ parameter_name }}
+// Strictness: {{ strictness_name }}
+// ============================================================
+// This patch enforces access control before entering {{ state_name }}
+// Added by FSMGuard Stage 08 based on RL agent decision
+
+{% if parameter == 0 %}
+  {# Parameter 0: auth_signal #}
+  {% if strictness == 0 %}
+// Soft mode: Fallback to {{ fallback }} on auth failure
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        if (!{{ auth_signal }}) begin
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% else %}
+// Strict mode: Fallback to {{ fallback }} with alert on auth failure
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        if (!{{ auth_signal }}) begin
+            // alert_signal = 1'b1;  // Optional: add alert output to module
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% endif %}
+
+{% elif parameter == 1 %}
+  {# Parameter 1: lock_signal or second input #}
+  {% if strictness == 0 %}
+// Soft mode: Fallback to {{ fallback }} if signal not asserted
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        {% if inputs|length > 1 %}
+        if (!{{ inputs[1] }}) begin
+        {% else %}
+        if (!lock_signal) begin
+        {% endif %}
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% else %}
+// Strict mode: Fallback to {{ fallback }} with alert if signal not asserted
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        {% if inputs|length > 1 %}
+        if (!{{ inputs[1] }}) begin
+        {% else %}
+        if (!lock_signal) begin
+        {% endif %}
+            // alert_signal = 1'b1;  // Optional: add alert output to module
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% endif %}
+
+{% elif parameter == 2 %}
+  {# Parameter 2: privilege_check or third input #}
+  {% if strictness == 0 %}
+// Soft mode: Fallback to {{ fallback }} if insufficient privilege
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        {% if inputs|length > 2 %}
+        if (!{{ inputs[2] }}) begin
+        {% else %}
+        if (privilege_level != 2'b11) begin
+        {% endif %}
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% else %}
+// Strict mode: Fallback to {{ fallback }} with alert if insufficient privilege
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        {% if inputs|length > 2 %}
+        if (!{{ inputs[2] }}) begin
+        {% else %}
+        if (privilege_level != 2'b11) begin
+        {% endif %}
+            // alert_signal = 1'b1;  // Optional: add alert output to module
+            {{ state_var }} <= {{ fallback }};
+        end
+    end
+end
+  {% endif %}
+
+{% endif %}
+
+// ============================================================
+// End FSMGuard Patch
+// ============================================================

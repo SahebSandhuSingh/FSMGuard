@@ -1,0 +1,47 @@
+{
+  "states": [
+    "IDLE",
+    "LOGIN",
+    "USER",
+    "ADMIN",
+    "ERROR"
+  ],
+  "transitions": [
+    {
+      "src": "IDLE",
+      "dst": "ADMIN",
+      "condition": "backdoor"
+    },
+    {
+      "src": "IDLE",
+      "dst": "LOGIN",
+      "condition": "user_input"
+    },
+    {
+      "src": "LOGIN",
+      "dst": "USER",
+      "condition": "always"
+    },
+    {
+      "src": "USER",
+      "dst": "ADMIN",
+      "condition": "user_input"
+    },
+    {
+      "src": "USER",
+      "dst": "ERROR",
+      "condition": "always"
+    },
+    {
+      "src": "ADMIN",
+      "dst": "ADMIN",
+      "condition": "always"
+    },
+    {
+      "src": "ERROR",
+      "dst": "IDLE",
+      "condition": "always"
+    }
+  ],
+  "reset_state": "IDLE"
+}

@@ -14,8 +14,39 @@ Date: 2026-03-07
 
 import numpy as np
 from stable_baselines3 import PPO
-from fsm_env import FSMGuardEnv, ACTION_NAMES
+from fsm_env import FSMGuardEnv, CATEGORY_NAMES, PARAMETER_NAMES, STRICTNESS_NAMES
 from collections import defaultdict
+
+
+def decode_action(action):
+    """
+    Decode MultiDiscrete action into human-readable format.
+    
+    Args:
+        action: NumPy array [category, parameter, strictness]
+    
+    Returns:
+        Dictionary with decoded action components
+    """
+    categories = ["Guard", "Prune", "Re-encode", "Deadlock"]
+    parameters = [
+        ["auth_signal", "lock_signal", "priv_check"],
+        ["full_removal", "redirect", "safe_redirect"],
+        ["hamming", "parity", "both"],
+        ["alert", "lockdown", "both"]
+    ]
+    strictness = ["soft", "strict"]
+    
+    cat = int(action[0])
+    par = int(action[1])
+    strt = int(action[2])
+    
+    return {
+        "category": categories[cat],
+        "parameter": parameters[cat][par],
+        "strictness": strictness[strt],
+        "fallback": "RESET" if strt == 1 else "IDLE"
+    }
 
 
 def create_evaluation_environment():
@@ -115,11 +146,13 @@ def evaluate_agent(model_path: str = "fsm_ppo_agent", num_episodes: int = 10):
             
             # Agent selects action
             action, _states = model.predict(obs, deterministic=True)
-            action = int(action)
-            all_actions.append(action)
             
-            # Track CWE to action mapping
-            cwe_action_map[cwe][action] += 1
+            # Decode action for display
+            decoded = decode_action(action)
+            
+            # Track CWE to action mapping (track category for statistics)
+            cwe_action_map[cwe][int(action[0])] += 1
+            all_actions.append(action.copy())
             
             # Take action in environment
             obs, reward, terminated, truncated, info = env.step(action)
@@ -133,10 +166,13 @@ def evaluate_agent(model_path: str = "fsm_ppo_agent", num_episodes: int = 10):
             
             # Print step details
             print(f"\nStep [{step}] | State: {state_name} | CWE: {cwe}")
-            print(f"  Risk Score: {risk_score:.3f}")
-            print(f"  Action:     {action} - {ACTION_NAMES[action]}")
-            print(f"  Reward:     {reward:.1f}")
-            print(f"  Correct:    {'✅ YES' if info.get('fix_correct', False) else '❌ NO'}")
+            print(f"  Risk Score:  {risk_score:.3f}")
+            print(f"  Category:    {decoded['category']}")
+            print(f"  Parameter:   {decoded['parameter']}")
+            print(f"  Strictness:  {decoded['strictness']}")
+            print(f"  Fallback:    {decoded['fallback']}")
+            print(f"  Reward:      {reward:.1f}")
+            print(f"  Correct:     {'✅ YES' if info.get('fix_correct', False) else '❌ NO'}")
         
         # Episode summary
         accuracy = (correct_fixes / total_fixes * 100) if total_fixes > 0 else 0
@@ -165,21 +201,22 @@ def evaluate_agent(model_path: str = "fsm_ppo_agent", num_episodes: int = 10):
     print(f"  Best Episode:       {max(episode_rewards):.2f}")
     print(f"  Worst Episode:      {min(episode_rewards):.2f}")
     
-    # Action distribution
-    print(f"\nAction Distribution:")
-    action_counts = defaultdict(int)
+    # Action distribution (by category)
+    print(f"\nCategory Distribution:")
+    category_counts = defaultdict(int)
     for action in all_actions:
-        action_counts[action] += 1
+        category_counts[int(action[0])] += 1
     
     total_actions = len(all_actions)
-    for action in sorted(action_counts.keys()):
-        count = action_counts[action]
-        percentage = (count / total_actions * 100)
-        print(f"  {action}: {ACTION_NAMES[action]}")
+    categories = ["Guard Insertion", "Transition Pruning", "State Re-encoding", "Deadlock Trap"]
+    for cat_idx in range(4):
+        count = category_counts[cat_idx]
+        percentage = (count / total_actions * 100) if total_actions > 0 else 0
+        print(f"  {cat_idx}: {categories[cat_idx]}")
         print(f"      Used {count}/{total_actions} times ({percentage:.1f}%)")
     
     # CWE-specific behavior
-    print(f"\nMost Common Action per CWE:")
+    print(f"\nMost Common Category per CWE:")
     for cwe in sorted(cwe_action_map.keys()):
         actions_for_cwe = cwe_action_map[cwe]
         most_common_action = max(actions_for_cwe.items(), key=lambda x: x[1])
@@ -188,26 +225,26 @@ def evaluate_agent(model_path: str = "fsm_ppo_agent", num_episodes: int = 10):
         percentage = (count / total_for_cwe * 100)
         
         print(f"  {cwe}:")
-        print(f"    → Action {action_idx}: {ACTION_NAMES[action_idx]}")
+        print(f"    → Category {action_idx}: {categories[action_idx]}")
         print(f"      ({count}/{total_for_cwe} times, {percentage:.1f}%)")
     
     # Expected behavior check
     print(f"\nExpected Behavior Check:")
     expected_mappings = {
-        "CWE-1245": [0, 1, 2],  # Guard Insertion
-        "CWE-1233": [3, 4],      # Transition Pruning
-        "CWE-1298": [5, 6],      # State Re-encoding
-        "CWE-1280": [7, 8]       # Deadlock Trap
+        "CWE-1245": 0,  # Guard Insertion
+        "CWE-1233": 1,  # Transition Pruning
+        "CWE-1298": 2,  # State Re-encoding
+        "CWE-1280": 3   # Deadlock Trap
     }
     
-    for cwe, expected_actions in expected_mappings.items():
+    for cwe, expected_category in expected_mappings.items():
         if cwe in cwe_action_map:
             actions_for_cwe = cwe_action_map[cwe]
             most_common_action = max(actions_for_cwe.items(), key=lambda x: x[1])[0]
-            if most_common_action in expected_actions:
-                print(f"  ✅ {cwe}: Agent learned correct fix category")
+            if most_common_action == expected_category:
+                print(f"  ✅ {cwe}: Agent learned correct fix category ({categories[expected_category]})")
             else:
-                print(f"  ⚠️  {cwe}: Agent uses suboptimal action {most_common_action}")
+                print(f"  ⚠️  {cwe}: Agent uses suboptimal category {most_common_action} ({categories[most_common_action]})")
     
     print("\n" + "=" * 70)
     print("Evaluation Complete!")

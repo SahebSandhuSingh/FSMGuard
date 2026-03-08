@@ -1,0 +1,56 @@
+{
+  "patches_applied": 6,
+  "total_vulnerabilities": 6,
+  "all_fixes": [
+    {
+      "state_name": "SI",
+      "cwe": "CWE-1245",
+      "risk_score": 0.7674624919891357,
+      "fix_category": "Guard Insertion",
+      "fix_parameter": "privilege_check",
+      "fix_strictness": "strict"
+    },
+    {
+      "state_name": "S0",
+      "cwe": "CWE-1280",
+      "risk_score": 0.7841013669967651,
+      "fix_category": "Deadlock Trap",
+      "fix_parameter": "lockdown",
+      "fix_strictness": "strict"
+    },
+    {
+      "state_name": "S1",
+      "cwe": "CWE-1280",
+      "risk_score": 0.784057080745697,
+      "fix_category": "Deadlock Trap",
+      "fix_parameter": "lockdown",
+      "fix_strictness": "soft"
+    },
+    {
+      "state_name": "S2",
+      "cwe": "CWE-1280",
+      "risk_score": 0.5730639696121216,
+      "fix_category": "Deadlock Trap",
+      "fix_parameter": "lockdown",
+      "fix_strictness": "soft"
+    },
+    {
+      "state_name": "S3",
+      "cwe": "CWE-1280",
+      "risk_score": 0.4976087212562561,
+      "fix_category": "Deadlock Trap",
+      "fix_parameter": "lockdown",
+      "fix_strictness": "soft"
+    },
+    {
+      "state_name": "S4",
+      "cwe": "CWE-1245",
+      "risk_score": 0.4129932224750519,
+      "fix_category": "Guard Insertion",
+      "fix_parameter": "privilege_check",
+      "fix_strictness": "strict"
+    }
+  ],
+  "original_file": "input/dma_timing_control_verilog.v",
+  "patched_file": "output/patched_fsm.v"
+}

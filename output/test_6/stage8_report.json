@@ -1,0 +1,12 @@
+{
+  "state_name": "EXPLOIT",
+  "cwe": "CWE-1233",
+  "risk_score": 0.95,
+  "fix_category": "Transition Pruning",
+  "fix_parameter": "safe_redirect",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - Transition Pruning\n// CWE: CWE-1233\n// Parameter: safe_redirect\n// Strictness: strict\n// ============================================================\n// This patch removes or redirects unsafe transition to EXPLOIT\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Transition SAFELY REDIRECTED by FSMGuard with alert\n// CWE CWE-1233 mitigation - monitored redirect\nalways @(posedge clk) begin\n    if (next_state_logic == EXPLOIT) begin\n        // Unsafe transition detected - alert and redirect\n        alert_signal = 1'b1;\n        next_state = SAFE_STATE;\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_6/patched_fsm.v"
+}

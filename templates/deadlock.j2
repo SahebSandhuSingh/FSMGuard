@@ -1,0 +1,63 @@
+{# FSMGuard Template - Deadlock Trap #}
+{# Security Property: Detects and handles stuck/deadlocked states #}
+
+// ============================================================
+// FSMGuard Patch - {{ category_name }}
+// CWE: {{ cwe }}
+// Parameter: {{ parameter_name }}
+// Strictness: {{ strictness_name }}
+// ============================================================
+// This patch adds deadlock detection for state {{ state_name }}
+// Added by FSMGuard Stage 08 based on RL agent decision
+
+{% if parameter == 0 %}
+  {# Parameter 0: alert signal #}
+  {% if strictness == 0 %}
+// Soft mode: Alert and recover to {{ fallback }}
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Deadlock detected - alert and recover
+        // alert_signal = 1'b1;  // Optional: add alert output to module
+        {{ state_var }} <= {{ fallback }};
+    end
+end
+  {% else %}
+// Strict mode: Alert and reset system
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Deadlock detected - alert and hard reset
+        // alert_signal = 1'b1;  // Optional: add alert output to module
+        {{ state_var }} <= {{ fallback }};
+    end
+end
+  {% endif %}
+
+{% elif parameter == 1 %}
+  {# Parameter 1: lockdown (always strict) #}
+// Lockdown mode: Halt all operations on deadlock
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Critical deadlock - initiate lockdown
+        // lockdown = 1'b1;  // Optional: add lockdown output to module
+        {{ state_var }} <= {{ fallback }};
+    end
+end
+
+{% elif parameter == 2 %}
+  {# Parameter 2: both alert and lockdown #}
+// Maximum response: Alert + Lockdown
+// Used for critical security states
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Critical deadlock detected
+        // alert_signal = 1'b1;  // Optional: add alert output to module
+        // lockdown = 1'b1;      // Optional: add lockdown output to module
+        {{ state_var }} <= {{ fallback }};
+    end
+end
+
+{% endif %}
+
+// ============================================================
+// End FSMGuard Patch
+// ============================================================

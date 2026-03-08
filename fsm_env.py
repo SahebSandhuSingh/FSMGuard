@@ -17,18 +17,24 @@ import numpy as np
 from typing import Dict, List, Any, Tuple, Optional
 
 
-# Action name mappings for interpretability
-ACTION_NAMES = {
-    0: "Guard Insertion + auth_signal",
-    1: "Guard Insertion + lock_signal",
-    2: "Guard Insertion + privilege_check",
-    3: "Transition Pruning + full removal",
-    4: "Transition Pruning + redirect",
-    5: "State Re-encoding + hamming",
-    6: "State Re-encoding + parity",
-    7: "Deadlock Trap + alert signal",
-    8: "Deadlock Trap + hard lockdown"
-}
+# Fix category mappings
+CATEGORY_NAMES = [
+    "Guard Insertion",
+    "Transition Pruning",
+    "State Re-encoding",
+    "Deadlock Trap"
+]
+
+# Parameter mappings per category
+PARAMETER_NAMES = [
+    ["auth_signal", "lock_signal", "privilege_check"],           # Guard Insertion
+    ["full_removal", "redirect", "safe_redirect"],               # Transition Pruning
+    ["hamming", "parity", "both"],                                # State Re-encoding
+    ["alert", "lockdown", "both"]                                 # Deadlock Trap
+]
+
+# Strictness mappings
+STRICTNESS_NAMES = ["soft", "strict"]
 
 
 class FSMGuardEnv(gym.Env):
@@ -38,7 +44,9 @@ class FSMGuardEnv(gym.Env):
     Observation Space:
         Box(30,) containing:
         - [0:13]: Current state features (13 values)
-        - [13:22]: Fix history (9 binary values)
+        - [13:17]: Category history (4 binary values)
+        - [17:20]: Parameter history (3 binary values)
+        - [20:22]: Strictness history (2 binary values)
         - [22]: Remaining states ratio
         - [23]: Current risk score
         - [24]: Progress through sequence
@@ -46,15 +54,17 @@ class FSMGuardEnv(gym.Env):
         - [29]: Episode progress
     
     Action Space:
-        Discrete(9) representing 9 different hardware fixes
+        MultiDiscrete([4, 3, 2]) representing:
+        - Dimension 1: Fix Category (0-3)
+        - Dimension 2: Fix Parameter (0-2)
+        - Dimension 3: Strictness (0-1)
     
     Reward Rules:
-        - CWE-matched fix: +10
-        - Partially correct: +3
-        - Wrong fix: -5
-        - High risk bonus: +5 (if risk >= 0.80)
-        - Sequential coherence: +2
-        - Action variety penalty: -3
+        - Correct category + correct parameter: +10
+        - Correct category + wrong parameter: +4
+        - Wrong category: -5
+        - Strict mode on high risk (>=0.80): +3 bonus
+        - Soft mode on low risk (<0.50): +2 bonus
         - Episode completion: +20
     """
     
@@ -76,8 +86,10 @@ class FSMGuardEnv(gym.Env):
         # Store weak states (keep original for resets)
         if not weak_states:
             raise ValueError("weak_states list cannot be empty")
-        self.weak_states_original = weak_states.copy()
-        self.weak_states = weak_states.copy()
+        
+        # Normalize features format (convert dict to list if needed)
+        self.weak_states_original = self._normalize_weak_states(weak_states)
+        self.weak_states = self.weak_states_original.copy()
         self.total_weak_states = len(weak_states)
         
         # Define observation space: 30-dimensional continuous
@@ -89,16 +101,66 @@ class FSMGuardEnv(gym.Env):
             dtype=np.float32
         )
         
-        # Define action space: 9 discrete actions
-        self.action_space = gym.spaces.Discrete(9)
+        # Define action space: MultiDiscrete [category, parameter, strictness]
+        self.action_space = gym.spaces.MultiDiscrete([4, 3, 2])
         
         # Episode state variables
         self.current_step = 0
-        self.fix_history = [0] * 9  # Track which actions have been used
+        self.category_history = [0] * 4  # Track category usage
+        self.parameter_history = [0] * 3  # Track parameter usage
+        self.strictness_history = [0] * 2  # Track strictness usage
         self.previous_action = None
         self.previous_cwe = None
-        self.consecutive_same_action = 0
+        self.consecutive_same_category = 0
         self.total_reward = 0.0
+        
+    def _normalize_weak_states(self, weak_states: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Normalize weak states to ensure features are in list format.
+        
+        Stage 4 may return features as dict (key->value pairs) but the 
+        environment expects a list. This method converts dict to list if needed.
+        
+        Args:
+            weak_states: List of weak state dictionaries
+        
+        Returns:
+            Normalized weak states with features as lists
+        """
+        # Feature order expected by the environment
+        feature_order = [
+            'in_degree', 'out_degree', 'self_loop', 'reset_distance',
+            'neighbor_risk', 'is_terminal', 'guarded', 'privilege',
+            'auth_bypass', 'auth_sequence_completed', 'path_bypasses_auth',
+            'lock_signal_asserted', 'privilege_escalation'
+        ]
+        
+        normalized_states = []
+        for state in weak_states:
+            normalized_state = state.copy()
+            features = state.get('features', [])
+            
+            # Check if features is a dict and convert to list
+            if isinstance(features, dict):
+                # Convert dict to list using feature_order
+                normalized_state['features'] = [
+                    features.get(feat, 0.0) for feat in feature_order
+                ]
+            elif isinstance(features, list):
+                # Already a list, ensure it has 13 elements
+                if len(features) < 13:
+                    # Pad with zeros if too short
+                    normalized_state['features'] = features + [0.0] * (13 - len(features))
+                else:
+                    # Use first 13 if too long
+                    normalized_state['features'] = features[:13]
+            else:
+                # Invalid format, create zero array
+                normalized_state['features'] = [0.0] * 13
+            
+            normalized_states.append(normalized_state)
+        
+        return normalized_states
         
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[np.ndarray, Dict]:
         """
@@ -129,10 +191,12 @@ class FSMGuardEnv(gym.Env):
         
         # Reset episode state
         self.current_step = 0
-        self.fix_history = [0] * 9
+        self.category_history = [0] * 4
+        self.parameter_history = [0] * 3
+        self.strictness_history = [0] * 2
         self.previous_action = None
         self.previous_cwe = None
-        self.consecutive_same_action = 0
+        self.consecutive_same_category = 0
         self.total_reward = 0.0
         
         # Build initial observation
@@ -141,12 +205,12 @@ class FSMGuardEnv(gym.Env):
         
         return observation, info
     
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+    def step(self, action: np.ndarray) ->Tuple[np.ndarray, float, bool, bool, Dict]:
         """
         Execute one step in the environment.
         
         Args:
-            action: Integer action (0-8)
+            action: MultiDiscrete action [category, parameter, strictness]
         
         Returns:
             observation: Next observation (30,) array
@@ -155,6 +219,11 @@ class FSMGuardEnv(gym.Env):
             truncated: Whether episode was truncated (always False)
             info: Dictionary with step metadata
         """
+        # Parse action components
+        category = int(action[0])
+        parameter = int(action[1])
+        strictness = int(action[2])
+        
         # Get current weak state
         current_state = self.weak_states[self.current_step]
         state_name = current_state["state_name"]
@@ -163,20 +232,22 @@ class FSMGuardEnv(gym.Env):
         features = current_state["features"]
         
         # Compute reward for this action
-        reward = self._compute_reward(action, features, risk_score, cwe)
+        reward = self._compute_reward(category, parameter, strictness, risk_score, cwe)
         self.total_reward += reward
         
         # Update fix history
-        self.fix_history[action] = 1
+        self.category_history[category] = 1
+        self.parameter_history[parameter] = 1
+        self.strictness_history[strictness] = 1
         
-        # Update consecutive action counter
-        if action == self.previous_action:
-            self.consecutive_same_action += 1
+        # Update consecutive category counter
+        if self.previous_action is not None and category == self.previous_action[0]:
+            self.consecutive_same_category += 1
         else:
-            self.consecutive_same_action = 1
+            self.consecutive_same_category = 1
         
         # Store previous state for sequential coherence
-        self.previous_action = action
+        self.previous_action = action.copy()
         self.previous_cwe = cwe
         
         # Increment step counter
@@ -198,15 +269,24 @@ class FSMGuardEnv(gym.Env):
             observation = np.zeros(30, dtype=np.float32)
         
         # Build info dictionary
+        fallback = "RESET" if strictness == 1 else "IDLE"
         info = {
             "state_name": state_name,
-            "action_taken": action,
-            "action_name": ACTION_NAMES[action],
+            "action_taken": action.tolist(),
             "reward": reward,
             "cwe": cwe,
             "risk_score": risk_score,
             "fix_correct": reward >= 10.0,
-            "total_reward": self.total_reward
+            "total_reward": self.total_reward,
+            "fix_category": category,
+            "fix_parameter": parameter,
+            "fix_strictness": strictness,
+            "fix_spec": {
+                "category": CATEGORY_NAMES[category],
+                "parameter": PARAMETER_NAMES[category][parameter],
+                "strictness": STRICTNESS_NAMES[strictness],
+                "fallback": fallback
+            }
         }
         
         return observation, reward, terminated, truncated, info
@@ -230,9 +310,17 @@ class FSMGuardEnv(gym.Env):
         for i, feat in enumerate(features[:13]):
             obs[i] = float(feat) / 10.0
         
-        # [13:22] - Fix history (binary: 1 if action used, 0 otherwise)
-        for i, used in enumerate(self.fix_history):
+        # [13:17] - Category history (4 values)
+        for i, used in enumerate(self.category_history):
             obs[13 + i] = float(used)
+        
+        # [17:20] - Parameter history (3 values)
+        for i, used in enumerate(self.parameter_history):
+            obs[17 + i] = float(used)
+        
+        # [20:22] - Strictness history (2 values)
+        for i, used in enumerate(self.strictness_history):
+            obs[20 + i] = float(used)
         
         # [22] - Remaining states ratio
         remaining = self.total_weak_states - self.current_step
@@ -277,23 +365,23 @@ class FSMGuardEnv(gym.Env):
         
         return encoding
     
-    def _compute_reward(self, action: int, features: List, 
+    def _compute_reward(self, category: int, parameter: int, strictness: int,
                        risk_score: float, cwe: str) -> float:
         """
-        Compute reward based on action, state features, and CWE label.
+        Compute reward based on fix decisions and state context.
         
         Reward Rules:
-            1. CWE-matched fix: +10
-            2. Partially correct: +3
-            3. Wrong fix: -5
-            4. High risk bonus: +5 (if risk >= 0.80 and correct)
-            5. Sequential coherence: +2 (same CWE, same fix category)
-            6. Action variety penalty: -3 (same action 3+ times)
-            7. Episode completion: +20 (handled in step())
+            1. Correct category + correct parameter: +10
+            2. Correct category + wrong parameter: +4
+            3. Wrong category: -5
+            4. Strict mode on high risk (>=0.80): +3 bonus
+            5. Soft mode on low risk (<0.50): +2 bonus
+            6. Episode completion: +20 (handled in step())
         
         Args:
-            action: Selected action (0-8)
-            features: State features (not used in basic reward)
+            category: Fix category (0-3)
+            parameter: Fix parameter (0-2)
+            strictness: Strictness level (0-1)
             risk_score: Vulnerability score (0-1)
             cwe: CWE label
         
@@ -301,87 +389,61 @@ class FSMGuardEnv(gym.Env):
             Computed reward value
         """
         reward = 0.0
-        fix_correct = False
         
-        # Rule 1 & 2 & 3: CWE-based reward
-        if cwe == "CWE-1245":
-            if action in [0, 1, 2]:  # Guard Insertion
-                reward = 10.0
-                fix_correct = True
-            elif action in [3, 4]:  # Transition Pruning
-                reward = 3.0
+        # Define correct mappings: CWE -> (category, parameters)
+        correct_fixes = {
+            "CWE-1245": (0, [0, 1, 2]),  # Guard Insertion: auth/lock/priv
+            "CWE-1233": (1, [0, 1]),      # Transition Pruning: removal/redirect
+            "CWE-1298": (2, [0, 1, 2]),   # State Re-encoding: hamming/parity/both
+            "CWE-1280": (3, [0, 1, 2])    # Deadlock Trap: alert/lockdown/both
+        }
+        
+        # Get correct fix for this CWE
+        if cwe in correct_fixes:
+            correct_category, correct_parameters = correct_fixes[cwe]
+            
+            # Rule 1 & 2 & 3: Category and parameter matching
+            if category == correct_category:
+                if parameter in correct_parameters:
+                    reward = 10.0  # Perfect match
+                else:
+                    reward = 4.0   # Correct category, wrong parameter
             else:
-                reward = -5.0
-        
-        elif cwe == "CWE-1233":
-            if action in [3, 4]:  # Transition Pruning
-                reward = 10.0
-                fix_correct = True
-            elif action in [0, 1, 2]:  # Guard Insertion
-                reward = 3.0
-            else:
-                reward = -5.0
-        
-        elif cwe == "CWE-1298":
-            if action in [5, 6]:  # State Re-encoding
-                reward = 10.0
-                fix_correct = True
-            elif action in [7, 8]:  # Deadlock Trap
-                reward = 3.0
-            else:
-                reward = -5.0
-        
-        elif cwe == "CWE-1280":
-            if action in [7, 8]:  # Deadlock Trap
-                reward = 10.0
-                fix_correct = True
-            elif action in [5, 6]:  # State Re-encoding
-                reward = 3.0
-            else:
-                reward = -5.0
-        
+                reward = -5.0  # Wrong category
         else:
-            # Unknown CWE - neutral reward
+            # Unknown CWE
             reward = -5.0
         
-        # Rule 4: High risk bonus
-        if fix_correct and risk_score >= 0.80:
-            reward += 5.0
+        # Rule 4: Strict mode bonus on high risk
+        if strictness == 1 and risk_score >= 0.80:
+            reward += 3.0
         
-        # Rule 5: Sequential coherence bonus
-        if self.previous_cwe == cwe and self.previous_action is not None:
-            # Check if same fix category
-            prev_category = self._get_action_category(self.previous_action)
-            curr_category = self._get_action_category(action)
-            if prev_category == curr_category:
-                reward += 2.0
-        
-        # Rule 6: Action variety penalty
-        if self.consecutive_same_action >= 3:
-            reward -= 3.0
+        # Rule 5: Soft mode bonus on low risk
+        if strictness == 0 and risk_score < 0.50:
+            reward += 2.0
         
         return reward
     
-    def _get_action_category(self, action: int) -> str:
+    def _decode_action(self, action: np.ndarray) -> Dict[str, str]:
         """
-        Get the category of an action for coherence checking.
+        Decode action array into human-readable format.
         
         Args:
-            action: Action index (0-8)
+            action: MultiDiscrete action [category, parameter, strictness]
         
         Returns:
-            Category string
+            Dictionary with decoded action components
         """
-        if action in [0, 1, 2]:
-            return "guard_insertion"
-        elif action in [3, 4]:
-            return "transition_pruning"
-        elif action in [5, 6]:
-            return "state_reencoding"
-        elif action in [7, 8]:
-            return "deadlock_trap"
-        else:
-            return "unknown"
+        category = int(action[0])
+        parameter = int(action[1])
+        strictness = int(action[2])
+        
+        return {
+            "category": CATEGORY_NAMES[category],
+            "parameter": PARAMETER_NAMES[category][parameter],
+            "strictness": STRICTNESS_NAMES[strictness],
+            "fallback": "RESET" if strictness == 1 else "IDLE"
+        }
     
     def render(self):
         """
@@ -402,7 +464,11 @@ class FSMGuardEnv(gym.Env):
             print(f"\nStep [{self.current_step}/{self.total_weak_states}] "
                   f"| State: {state['state_name']} | CWE: {state['cwe']}")
             if action is not None:
-                print(f"Action: {ACTION_NAMES[action]}")
+                decoded = self._decode_action(action)
+                print(f"Category:   {decoded['category']}")
+                print(f"Parameter:  {decoded['parameter']}")
+                print(f"Strictness: {decoded['strictness']}")
+                print(f"Fallback:   {decoded['fallback']}")
                 print(f"Risk: {state['risk_score']:.3f}")
         
         if self.current_step >= self.total_weak_states:

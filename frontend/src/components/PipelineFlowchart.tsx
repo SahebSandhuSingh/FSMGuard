@@ -11,6 +11,7 @@ import {
   Zap,
   ChevronRight,
 } from "lucide-react";
+import { pollUntilDone, JobStatusResponse } from "@/lib/api";
 
 /* ────────── stage data ────────── */
 const stages = [
@@ -492,28 +493,69 @@ const StageCard = ({
 /* ────────── main component ────────── */
 interface PipelineFlowchartProps {
   onComplete: () => void;
+  jobId?: string;
 }
 
-const PipelineFlowchart = ({ onComplete }: PipelineFlowchartProps) => {
+const PipelineFlowchart = ({ onComplete, jobId }: PipelineFlowchartProps) => {
   const [activeStep, setActiveStep] = useState(-1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
+  // Map progress 0–100 → stage index (0–3)
+  const progressToStage = (progress: number): number => {
+    if (progress <= 25) return 0;
+    if (progress <= 50) return 1;
+    if (progress <= 75) return 2;
+    return 3;
+  };
+
   useEffect(() => {
-    let step = 0;
-    const runStep = () => {
-      if (step >= stages.length) {
+    if (jobId) {
+      // Real mode: drive stages via backend polling
+      let lastStage = -1;
+
+      const handleProgress = (status: JobStatusResponse) => {
+        const stageIndex = progressToStage(status.progress);
+
+        if (stageIndex > lastStage) {
+          setCompletedSteps((prev) => {
+            const newCompleted = [...prev];
+            for (let i = lastStage; i < stageIndex; i++) {
+              if (!newCompleted.includes(i) && i >= 0) newCompleted.push(i);
+            }
+            return newCompleted;
+          });
+          setActiveStep(stageIndex);
+          lastStage = stageIndex;
+        }
+      };
+
+      pollUntilDone(jobId, handleProgress).then(() => {
+        setCompletedSteps([0, 1, 2, 3]);
+        setActiveStep(-1);
         onComplete();
-        return;
-      }
-      setActiveStep(step);
-      setTimeout(() => {
-        setCompletedSteps((prev) => [...prev, step]);
-        step++;
-        runStep();
-      }, stages[step].duration);
-    };
-    runStep();
-  }, [onComplete]);
+      }).catch(() => {
+        setCompletedSteps([0, 1, 2, 3]);
+        setActiveStep(-1);
+        onComplete();
+      });
+    } else {
+      // Fallback timer mode (no jobId)
+      let step = 0;
+      const runStep = () => {
+        if (step >= stages.length) {
+          onComplete();
+          return;
+        }
+        setActiveStep(step);
+        setTimeout(() => {
+          setCompletedSteps((prev) => [...prev, step]);
+          step++;
+          runStep();
+        }, stages[step].duration);
+      };
+      runStep();
+    }
+  }, [jobId, onComplete]);
 
   return (
     <div className="space-y-5">

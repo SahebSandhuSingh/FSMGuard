@@ -1,74 +1,40 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, CheckCircle2, FileCode2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Vulnerability, SAMPLE_VERILOG } from "@/lib/mockData";
+import { Vulnerability } from "@/lib/mockData";
+import { fetchPatchedCode, getReportUrl } from "@/lib/api";
 import jsPDF from "jspdf";
 
 interface PatchedOutputProps {
   vulnerabilities: Vulnerability[];
+  jobId?: string;
 }
 
-const generateFullPatchedCode = () => {
-  return `module fsm_controller (
-  input clk, reset, start, mode,
-  output reg [1:0] state,
-  output reg done, error
-);
+const PatchedOutput = ({ vulnerabilities, jobId }: PatchedOutputProps) => {
+  const [patchedCode, setPatchedCode] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
-  parameter IDLE   = 2'b00;
-  parameter ACTIVE = 2'b01;
-  parameter WAIT   = 2'b10;
-  parameter TIMEOUT = 8'd255;
+  useEffect(() => {
+    if (jobId) {
+      fetchPatchedCode(jobId)
+        .then((code) => setPatchedCode(code))
+        .catch(() => setPatchedCode("// Patched file not available — check backend."))
+        .finally(() => setLoading(false));
+    } else {
+      setPatchedCode("// No job ID provided — run a real analysis to see patched code.");
+      setLoading(false);
+    }
+  }, [jobId]);
 
-  reg [7:0] wait_counter;
+  const briefSummary = `The RL agent identified ${vulnerabilities.length} vulnerabilities in the FSM design. All vulnerable states have been patched and formally verified via SymbiYosys + Z3.`;
 
-  always @(posedge clk or posedge reset) begin
-    if (reset) begin
-      state <= IDLE;
-      done  <= 1'b0;
-      error <= 1'b0;
-      wait_counter <= 8'd0;
-    end else begin
-      case (state)
-        IDLE: begin
-          done  <= 1'b0;
-          error <= 1'b0;
-          if (start)
-            state <= ACTIVE;
-        end
-        ACTIVE: begin
-          if (mode)
-            state <= WAIT;
-          else
-            state <= IDLE;
-        end
-        WAIT: begin
-          if (wait_counter >= TIMEOUT) begin
-            state <= IDLE;
-            error <= 1'b1;
-            wait_counter <= 8'd0;
-          end else begin
-            wait_counter <= wait_counter + 1;
-            done <= 1'b1;
-          end
-        end
-        default: begin
-          state <= IDLE;
-          error <= 1'b1;
-          done  <= 1'b0;
-        end
-      endcase
-    end
-  end
-endmodule`;
-};
-
-const PatchedOutput = ({ vulnerabilities }: PatchedOutputProps) => {
-  const fullPatchedCode = generateFullPatchedCode();
-
-  const briefSummary = `The RL agent identified ${vulnerabilities.length} vulnerabilities in the FSM design. A default case was added to handle undefined state 2'b11, preventing control-flow hijack. A watchdog counter with configurable timeout was introduced for the WAIT state to prevent deadlocks. Output assignments are now guarded to prevent spurious assertions. All patches have been formally verified via SymbiYosys + Z3.`;
-
-  const handleDownloadPDF = () => {
+  const handleDownloadReport = () => {
+    if (jobId) {
+      window.open(getReportUrl(jobId, "txt"), "_blank");
+      return;
+    }
+    // Fallback: generate PDF from current data
     const doc = new jsPDF();
     doc.setFont("courier", "normal");
     doc.setFontSize(16);
@@ -79,8 +45,6 @@ const PatchedOutput = ({ vulnerabilities }: PatchedOutputProps) => {
     doc.line(14, 32, 196, 32);
 
     let y = 40;
-
-    // Summary
     doc.setFontSize(12);
     doc.text("Summary", 14, y);
     y += 7;
@@ -89,39 +53,37 @@ const PatchedOutput = ({ vulnerabilities }: PatchedOutputProps) => {
     doc.text(summaryLines, 14, y);
     y += summaryLines.length * 5 + 8;
 
-    // Vulnerabilities found
     doc.setFontSize(12);
     doc.text("Vulnerabilities Detected & Solutions", 14, y);
     y += 8;
-
     vulnerabilities.forEach((v, i) => {
       if (y > 240) { doc.addPage(); y = 20; }
       doc.setFontSize(11);
       doc.text(`${i + 1}. [${v.severity.toUpperCase()}] ${v.title}`, 14, y);
       y += 6;
       doc.setFontSize(9);
-      doc.text(`State: ${v.state} | Line: ${v.line}`, 14, y);
+      doc.text(`State: ${v.state}`, 14, y);
       y += 5;
       const descLines = doc.splitTextToSize(v.description, 170);
       doc.text(descLines, 14, y);
       y += descLines.length * 5 + 3;
-      doc.setFontSize(9);
       doc.text(`Solution: ${v.solution}`, 14, y);
       y += 8;
     });
 
-    // Full patched code
-    if (y > 200) { doc.addPage(); y = 20; }
-    doc.setFontSize(12);
-    doc.text("Full Patched Verilog Code", 14, y);
-    y += 8;
-    doc.setFontSize(8);
-    const codeLines = doc.splitTextToSize(fullPatchedCode, 175);
-    codeLines.forEach((line: string) => {
-      if (y > 280) { doc.addPage(); y = 20; }
-      doc.text(line, 14, y);
-      y += 4;
-    });
+    if (patchedCode) {
+      if (y > 200) { doc.addPage(); y = 20; }
+      doc.setFontSize(12);
+      doc.text("Full Patched Verilog Code", 14, y);
+      y += 8;
+      doc.setFontSize(8);
+      const codeLines = doc.splitTextToSize(patchedCode, 175);
+      codeLines.forEach((line: string) => {
+        if (y > 280) { doc.addPage(); y = 20; }
+        doc.text(line, 14, y);
+        y += 4;
+      });
+    }
 
     doc.save("fsm-security-report.pdf");
   };
@@ -152,14 +114,18 @@ const PatchedOutput = ({ vulnerabilities }: PatchedOutputProps) => {
           </span>
         </div>
         <div className="rounded-md bg-muted border border-border p-4 max-h-96 overflow-y-auto">
-          <pre className="text-xs font-mono text-foreground whitespace-pre">{fullPatchedCode}</pre>
+          {loading ? (
+            <p className="text-xs font-mono text-muted-foreground animate-pulse">Loading patched code...</p>
+          ) : (
+            <pre className="text-xs font-mono text-foreground whitespace-pre">{patchedCode}</pre>
+          )}
         </div>
       </div>
 
       {/* Download Button */}
       <div className="flex justify-center pt-2">
         <Button
-          onClick={handleDownloadPDF}
+          onClick={handleDownloadReport}
           size="lg"
           className="font-mono text-sm uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/80 px-8"
         >

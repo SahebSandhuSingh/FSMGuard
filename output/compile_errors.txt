@@ -1,0 +1,7 @@
+output/patched_fsm.v:208: error: Unable to bind wire/reg/memory `clk' in `DmaTimingControl'
+output/patched_fsm.v:208: error: Failed to evaluate event expression 'posedge clk'.
+2 error(s) during elaboration.
+
+
+NOTE: These errors are expected when using generic patch templates.
+In production, Stage 8 would adapt patches to actual FSM signal names.

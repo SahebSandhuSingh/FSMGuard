@@ -48,8 +48,8 @@ def demo_training():
     
     policy_kwargs = dict(
         net_arch=dict(
-            pi=[128, 128, 64],
-            vf=[128, 128, 64]
+            pi=[256, 128, 64],
+            vf=[256, 128, 64]
         )
     )
     

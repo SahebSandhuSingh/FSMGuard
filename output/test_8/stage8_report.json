@@ -1,0 +1,12 @@
+{
+  "state_name": "CRITICAL",
+  "cwe": "CWE-1298",
+  "risk_score": 0.82,
+  "fix_category": "State Re-encoding",
+  "fix_parameter": "parity",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - State Re-encoding\n// CWE: CWE-1298\n// Parameter: parity\n// Strictness: strict\n// ============================================================\n// This patch re-encodes state CRITICAL for fault resistance\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Parity protection added by FSMGuard\n// Detects odd number of bit flips\nlocalparam CRITICAL_NEW = 4'b1010;  // Even parity encoding\n\n// Parity check for CRITICAL\nwire parity_CRITICAL;\nassign parity_CRITICAL = ^current_state;\n\nalways @(posedge clk) begin\n    if (current_state == CRITICAL) begin\n        // Check parity - trigger alert on mismatch\n        if (parity_CRITICAL != expected_parity) begin\n            alert_signal = 1'b1;\n            next_state = RESET;\n        end\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_8/patched_fsm.v"
+}

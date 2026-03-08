@@ -1,0 +1,12 @@
+{
+  "state_name": "MEM_ACC",
+  "cwe": "CWE-1245",
+  "risk_score": 0.87,
+  "fix_category": "Guard Insertion",
+  "fix_parameter": "auth_signal",
+  "fix_strictness": "soft",
+  "fallback": "IDLE",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - Guard Insertion\n// CWE: CWE-1245\n// Parameter: auth_signal\n// Strictness: soft\n// ============================================================\n// This patch enforces access control before entering MEM_ACC\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n  \n// Soft mode: Fallback to IDLE on auth failure\nalways @(posedge clk) begin\n    if (next_state_logic == MEM_ACC) begin\n        if (auth_signal) begin\n            next_state = MEM_ACC;\n        end else begin\n            next_state = IDLE;\n        end\n    end\nend\n  \n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_1/patched_fsm.v"
+}

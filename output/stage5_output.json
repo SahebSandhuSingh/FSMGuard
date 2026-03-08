@@ -1,30 +1,167 @@
 [
   {
-    "state_name": "MEM_ACC",
-    "risk_score": 0.87,
+    "state_name": "SI",
+    "risk_score": 0.7674624919891357,
     "cwe": "CWE-1245",
-    "features": [
-      4,
-      1,
-      0,
-      2,
-      0.76,
-      0,
-      0,
-      1,
-      1,
-      0,
-      1,
-      0,
-      1
-    ],
+    "features": {
+      "in_degree": 5.0,
+      "out_degree": 2.0,
+      "self_loop": 1.0,
+      "reset_distance": 0.0,
+      "neighbor_risk": 2.0,
+      "is_terminal": 0.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 0.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
     "neighbors_in": [
-      "AUTH",
-      "DEBUG",
-      "IDLE"
+      "S0",
+      "S1",
+      "S2",
+      "S3",
+      "SI"
     ],
     "neighbors_out": [
-      "HALT"
+      "S0",
+      "SI"
     ]
+  },
+  {
+    "state_name": "S0",
+    "risk_score": 0.7841013669967651,
+    "cwe": "CWE-1280",
+    "features": {
+      "in_degree": 2.0,
+      "out_degree": 3.0,
+      "self_loop": 1.0,
+      "reset_distance": 1.0,
+      "neighbor_risk": 2.0,
+      "is_terminal": 0.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 1.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
+    "neighbors_in": [
+      "S0",
+      "SI"
+    ],
+    "neighbors_out": [
+      "S0",
+      "S1",
+      "SI"
+    ]
+  },
+  {
+    "state_name": "S1",
+    "risk_score": 0.784057080745697,
+    "cwe": "CWE-1280",
+    "features": {
+      "in_degree": 1.0,
+      "out_degree": 2.0,
+      "self_loop": 0.0,
+      "reset_distance": 2.0,
+      "neighbor_risk": 2.0,
+      "is_terminal": 0.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 1.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
+    "neighbors_in": [
+      "S0"
+    ],
+    "neighbors_out": [
+      "S2",
+      "SI"
+    ]
+  },
+  {
+    "state_name": "S2",
+    "risk_score": 0.5730639696121216,
+    "cwe": "CWE-1280",
+    "features": {
+      "in_degree": 1.0,
+      "out_degree": 2.0,
+      "self_loop": 0.0,
+      "reset_distance": 3.0,
+      "neighbor_risk": 1.0,
+      "is_terminal": 0.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 1.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
+    "neighbors_in": [
+      "S1"
+    ],
+    "neighbors_out": [
+      "S3",
+      "SI"
+    ]
+  },
+  {
+    "state_name": "S3",
+    "risk_score": 0.4976087212562561,
+    "cwe": "CWE-1280",
+    "features": {
+      "in_degree": 1.0,
+      "out_degree": 2.0,
+      "self_loop": 0.0,
+      "reset_distance": 4.0,
+      "neighbor_risk": 1.0,
+      "is_terminal": 0.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 1.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
+    "neighbors_in": [
+      "S2"
+    ],
+    "neighbors_out": [
+      "S4",
+      "SI"
+    ]
+  },
+  {
+    "state_name": "S4",
+    "risk_score": 0.4129932224750519,
+    "cwe": "CWE-1245",
+    "features": {
+      "in_degree": 1.0,
+      "out_degree": 0.0,
+      "self_loop": 0.0,
+      "reset_distance": 5.0,
+      "neighbor_risk": 0.0,
+      "is_terminal": 1.0,
+      "guarded": 1.0,
+      "privilege": 0.0,
+      "auth_bypass": 1.0,
+      "auth_sequence_completed": 0.0,
+      "path_bypasses_auth": 0.0,
+      "lock_signal_asserted": 0.0,
+      "privilege_escalation": 0.0
+    },
+    "neighbors_in": [
+      "S3"
+    ],
+    "neighbors_out": []
   }
 ]

@@ -1,0 +1,110 @@
+{
+  "design": {
+    "original_file": "input/dma_timing_control_verilog.v",
+    "patched_file": "output/patched_fsm.v",
+    "analyzed_at": "2026-03-08 04:54:02",
+    "total_states": 9,
+    "weak_states": 6
+  },
+  "detections": [
+    {
+      "state_name": "SI",
+      "risk_score": 0.7674624919891357,
+      "cwe": "CWE-1245",
+      "cwe_name": "Improper FSM with Bypassed Auth"
+    },
+    {
+      "state_name": "S0",
+      "risk_score": 0.7841013669967651,
+      "cwe": "CWE-1280",
+      "cwe_name": "Unprotected Access After Asset Access"
+    },
+    {
+      "state_name": "S1",
+      "risk_score": 0.784057080745697,
+      "cwe": "CWE-1280",
+      "cwe_name": "Unprotected Access After Asset Access"
+    },
+    {
+      "state_name": "S2",
+      "risk_score": 0.5730639696121216,
+      "cwe": "CWE-1280",
+      "cwe_name": "Unprotected Access After Asset Access"
+    },
+    {
+      "state_name": "S3",
+      "risk_score": 0.4976087212562561,
+      "cwe": "CWE-1280",
+      "cwe_name": "Unprotected Access After Asset Access"
+    },
+    {
+      "state_name": "S4",
+      "risk_score": 0.4129932224750519,
+      "cwe": "CWE-1245",
+      "cwe_name": "Improper FSM with Bypassed Auth"
+    }
+  ],
+  "fixes": [
+    {
+      "state_name": "SI",
+      "cwe": "CWE-1245",
+      "category": "Guard Insertion",
+      "parameter": "privilege_check",
+      "strictness": "strict",
+      "fallback": "RESET"
+    },
+    {
+      "state_name": "S0",
+      "cwe": "CWE-1280",
+      "category": "Deadlock Trap",
+      "parameter": "lockdown",
+      "strictness": "strict",
+      "fallback": "RESET"
+    },
+    {
+      "state_name": "S1",
+      "cwe": "CWE-1280",
+      "category": "Deadlock Trap",
+      "parameter": "lockdown",
+      "strictness": "soft",
+      "fallback": "RESET"
+    },
+    {
+      "state_name": "S2",
+      "cwe": "CWE-1280",
+      "category": "Deadlock Trap",
+      "parameter": "lockdown",
+      "strictness": "soft",
+      "fallback": "RESET"
+    },
+    {
+      "state_name": "S3",
+      "cwe": "CWE-1280",
+      "category": "Deadlock Trap",
+      "parameter": "lockdown",
+      "strictness": "soft",
+      "fallback": "RESET"
+    },
+    {
+      "state_name": "S4",
+      "cwe": "CWE-1245",
+      "category": "Guard Insertion",
+      "parameter": "privilege_check",
+      "strictness": "strict",
+      "fallback": "RESET"
+    }
+  ],
+  "verification": {
+    "compilation": "PASS",
+    "functionality": "PASS",
+    "security": "PASS",
+    "overall": "PASS"
+  },
+  "summary": {
+    "weak_states_detected": 6,
+    "vulnerabilities_found": 6,
+    "vulnerabilities_fixed": 6,
+    "verification_passed": true,
+    "design_safe": true
+  }
+}

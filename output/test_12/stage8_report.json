@@ -1,0 +1,12 @@
+{
+  "state_name": "FREEZE",
+  "cwe": "CWE-1280",
+  "risk_score": 0.92,
+  "fix_category": "Deadlock Trap",
+  "fix_parameter": "both",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - Deadlock Trap\n// CWE: CWE-1280\n// Parameter: both\n// Strictness: strict\n// ============================================================\n// This patch adds deadlock detection for state FREEZE\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Maximum response: Alert + Lockdown\n// Used for critical security states\nalways @(posedge clk) begin\n    if (current_state == FREEZE) begin\n        // Critical deadlock detected\n        alert_signal = 1'b1;\n        lockdown = 1'b1;\n        next_state = RESET;\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_12/patched_fsm.v"
+}

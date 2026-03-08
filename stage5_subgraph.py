@@ -16,7 +16,7 @@ import os
 from typing import Dict, List, Any, Tuple
 
 
-def extract_subgraph(G: nx.DiGraph, weak_state_idx: int, state_names: List[str]) -> Dict[str, List[str]]:
+def extract_subgraph(G: nx.DiGraph, weak_state_name: str) -> Dict[str, List[str]]:
     """
     Extract 1-hop neighborhood around a weak state.
     
@@ -25,9 +25,8 @@ def extract_subgraph(G: nx.DiGraph, weak_state_idx: int, state_names: List[str])
       - All states the weak state transitions OUT to (successors)
     
     Args:
-        G: Full NetworkX DiGraph of FSM
-        weak_state_idx: Integer node index of the weak state
-        state_names: List mapping node index to state name
+        G: Full NetworkX DiGraph of FSM (with state names as nodes)
+        weak_state_name: Name of the weak state
     
     Returns:
         Dictionary with:
@@ -38,35 +37,22 @@ def extract_subgraph(G: nx.DiGraph, weak_state_idx: int, state_names: List[str])
     neighbors_in = []
     neighbors_out = []
     
-    # Check if weak state index is valid
-    if weak_state_idx < 0 or weak_state_idx >= len(state_names):
-        print(f"Warning: Weak state index {weak_state_idx} out of range")
-        return {"neighbors_in": neighbors_in, "neighbors_out": neighbors_out}
-    
     # Check if node exists in graph
-    if weak_state_idx not in G.nodes():
-        print(f"Warning: Node {weak_state_idx} ({state_names[weak_state_idx]}) not found in graph")
+    if weak_state_name not in G.nodes():
+        print(f"Warning: State '{weak_state_name}' not found in graph")
         return {"neighbors_in": neighbors_in, "neighbors_out": neighbors_out}
     
     # Extract immediate predecessors (states with edges INTO weak state)
-    predecessors = list(G.predecessors(weak_state_idx))
-    for pred_idx in predecessors:
-        if pred_idx < len(state_names):
-            state_name = state_names[pred_idx]
-            if state_name not in neighbors_in:  # Avoid duplicates
-                neighbors_in.append(state_name)
+    predecessors = list(G.predecessors(weak_state_name))
+    neighbors_in = sorted(predecessors)  # Sort for consistency
     
     # Extract immediate successors (states weak state transitions OUT to)
-    successors = list(G.successors(weak_state_idx))
-    for succ_idx in successors:
-        if succ_idx < len(state_names):
-            state_name = state_names[succ_idx]
-            if state_name not in neighbors_out:  # Avoid duplicates
-                neighbors_out.append(state_name)
+    successors = list(G.successors(weak_state_name))
+    neighbors_out = sorted(successors)   # Sort for consistency
     
     return {
-        "neighbors_in": sorted(neighbors_in),   # Sort for consistency
-        "neighbors_out": sorted(neighbors_out)
+        "neighbors_in": neighbors_in,
+        "neighbors_out": neighbors_out
     }
 
 
@@ -76,14 +62,13 @@ def stage5_pipeline(full_graph: nx.DiGraph, flagged_states: List[Dict[str, Any]]
     Isolate subgraphs for all flagged weak states from Stage 04.
     
     For each flagged state:
-      1. Find its index in state_names
-      2. Extract 1-hop neighborhood
-      3. Combine with Stage 04 metadata
+      1. Extract 1-hop neighborhood from graph
+      2. Combine with Stage 04 metadata
     
     Args:
-        full_graph: Complete FSM graph from Stage 02
+        full_graph: Complete FSM graph from Stage 02 (nodes are state names)
         flagged_states: List of weak states from Stage 04 report
-        state_names: List mapping node index to state name
+        state_names: List of all state names (for validation)
     
     Returns:
         List of dictionaries ready for Stage 06 RL environment.
@@ -101,15 +86,13 @@ def stage5_pipeline(full_graph: nx.DiGraph, flagged_states: List[Dict[str, Any]]
     for weak_state in flagged_states:
         state_name = weak_state.get("state_name")
         
-        # Find state index in state_names list
-        try:
-            state_idx = state_names.index(state_name)
-        except ValueError:
+        # Validate state exists in state_names
+        if state_name not in state_names:
             print(f"Warning: State '{state_name}' not found in state_names list. Skipping.")
             continue
         
-        # Extract subgraph (1-hop neighbors)
-        subgraph_data = extract_subgraph(full_graph, state_idx, state_names)
+        # Extract subgraph (1-hop neighbors) - now uses state name directly
+        subgraph_data = extract_subgraph(full_graph, state_name)
         
         # Combine Stage 04 metadata with subgraph neighbors
         isolated_state = {

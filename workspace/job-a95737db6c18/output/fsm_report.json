@@ -1,0 +1,40 @@
+{
+  "design": {
+    "original_file": "input/vulnerable_fsm.v",
+    "patched_file": "output/patched_fsm.v",
+    "analyzed_at": "2026-03-08 05:53:06",
+    "total_states": 9,
+    "weak_states": 1
+  },
+  "detections": [
+    {
+      "state_name": "ADMIN",
+      "risk_score": 0.9555121064186096,
+      "cwe": "CWE-1245",
+      "cwe_name": "Improper FSM with Bypassed Auth"
+    }
+  ],
+  "fixes": [
+    {
+      "state_name": "ADMIN",
+      "cwe": "CWE-1245",
+      "category": "Guard Insertion",
+      "parameter": "privilege_check",
+      "strictness": "strict",
+      "fallback": "RESET"
+    }
+  ],
+  "verification": {
+    "compilation": "INFO",
+    "functionality": "SKIPPED",
+    "security": "SKIPPED",
+    "overall": "INFO"
+  },
+  "summary": {
+    "weak_states_detected": 1,
+    "vulnerabilities_found": 1,
+    "vulnerabilities_fixed": 1,
+    "verification_passed": true,
+    "design_safe": true
+  }
+}

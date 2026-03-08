@@ -1,108 +1,36 @@
 {
-  "design": "validation_test",
+  "design": "FSM_Design",
   "total_states": 5,
-  "weak_states_found": 4,
+  "weak_states_found": 1,
   "flagged_states": [
     {
-      "state_name": "IDLE",
-      "risk_score": 0.4976087212562561,
-      "severity": "MEDIUM",
+      "state_name": "ADMIN",
+      "risk_score": 0.9555121064186096,
+      "severity": "CRITICAL",
       "cwe": "CWE-1245",
       "cwe_label": "Improper FSM Logic",
       "recommended_fix": "Guard Insertion",
-      "attack_path": "IDLE",
+      "attack_path": "IDLE \u2192 ADMIN",
       "features": {
-        "in_degree": 2.0,
+        "in_degree": 3.0,
         "out_degree": 1.0,
-        "self_loop": 0.0,
-        "reset_distance": 0.0,
-        "neighbor_risk": 0.0,
-        "is_terminal": 0.0,
-        "guarded": 1.0,
-        "privilege": 0.0,
-        "auth_bypass": 0.0,
-        "auth_sequence_completed": 1.0,
-        "path_bypasses_auth": 0.0,
-        "lock_signal_asserted": 0.0,
-        "privilege_escalation": 0.0
-      }
-    },
-    {
-      "state_name": "AUTH",
-      "risk_score": 0.4976087212562561,
-      "severity": "MEDIUM",
-      "cwe": "CWE-1245",
-      "cwe_label": "Improper FSM Logic",
-      "recommended_fix": "Guard Insertion",
-      "attack_path": "IDLE \u2192 AUTH",
-      "features": {
-        "in_degree": 1.0,
-        "out_degree": 2.0,
-        "self_loop": 0.0,
+        "self_loop": 1.0,
         "reset_distance": 1.0,
-        "neighbor_risk": 0.0,
+        "neighbor_risk": 1.0,
         "is_terminal": 0.0,
         "guarded": 1.0,
-        "privilege": 0.0,
-        "auth_bypass": 0.0,
-        "auth_sequence_completed": 1.0,
-        "path_bypasses_auth": 0.0,
-        "lock_signal_asserted": 0.0,
-        "privilege_escalation": 0.0
-      }
-    },
-    {
-      "state_name": "CHECK",
-      "risk_score": 0.49204596877098083,
-      "severity": "MEDIUM",
-      "cwe": "CWE-1298",
-      "cwe_label": "Hardware Logic Race Condition",
-      "recommended_fix": "State Re-encoding",
-      "attack_path": "IDLE \u2192 AUTH \u2192 CHECK",
-      "features": {
-        "in_degree": 1.0,
-        "out_degree": 2.0,
-        "self_loop": 0.0,
-        "reset_distance": 2.0,
-        "neighbor_risk": 0.0,
-        "is_terminal": 0.0,
-        "guarded": 1.0,
-        "privilege": 0.0,
-        "auth_bypass": 0.0,
-        "auth_sequence_completed": 1.0,
-        "path_bypasses_auth": 0.0,
+        "privilege": 1.0,
+        "auth_bypass": 1.0,
+        "auth_sequence_completed": 0.0,
+        "path_bypasses_auth": 1.0,
         "lock_signal_asserted": 0.0,
         "privilege_escalation": 1.0
-      }
-    },
-    {
-      "state_name": "LOCK",
-      "risk_score": 0.49496859312057495,
-      "severity": "MEDIUM",
-      "cwe": "CWE-1245",
-      "cwe_label": "Improper FSM Logic",
-      "recommended_fix": "Guard Insertion",
-      "attack_path": "IDLE \u2192 AUTH \u2192 LOCK",
-      "features": {
-        "in_degree": 2.0,
-        "out_degree": 1.0,
-        "self_loop": 0.0,
-        "reset_distance": 2.0,
-        "neighbor_risk": 0.0,
-        "is_terminal": 0.0,
-        "guarded": 1.0,
-        "privilege": 0.0,
-        "auth_bypass": 0.0,
-        "auth_sequence_completed": 1.0,
-        "path_bypasses_auth": 0.0,
-        "lock_signal_asserted": 1.0,
-        "privilege_escalation": 0.0
       }
     }
   ],
   "summary": {
-    "critical": 0,
+    "critical": 1,
     "high": 0,
-    "medium": 4
+    "medium": 0
   }
 }

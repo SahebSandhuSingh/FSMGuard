@@ -1,44 +1,66 @@
 {
   "states": [
     "IDLE",
+    "SYN_WAIT",
     "AUTH",
-    "CHECK",
-    "ACCESS",
-    "LOCK"
+    "CONNECTED",
+    "DATA_XFER",
+    "ADMIN",
+    "DISCONNECT"
   ],
   "transitions": [
     {
       "src": "IDLE",
+      "dst": "SYN_WAIT",
+      "condition": "syn_received"
+    },
+    {
+      "src": "SYN_WAIT",
+      "dst": "ADMIN",
+      "condition": "admin_mode"
+    },
+    {
+      "src": "SYN_WAIT",
       "dst": "AUTH",
-      "condition": "login_req"
+      "condition": "always"
     },
     {
       "src": "AUTH",
-      "dst": "CHECK",
-      "condition": "password_ok"
-    },
-    {
-      "src": "AUTH",
-      "dst": "LOCK",
-      "condition": "auth_fail"
-    },
-    {
-      "src": "CHECK",
-      "dst": "ACCESS",
+      "dst": "CONNECTED",
       "condition": "auth_valid"
     },
     {
-      "src": "CHECK",
-      "dst": "LOCK",
+      "src": "AUTH",
+      "dst": "DISCONNECT",
+      "condition": "timeout"
+    },
+    {
+      "src": "CONNECTED",
+      "dst": "DATA_XFER",
+      "condition": "data_ready"
+    },
+    {
+      "src": "CONNECTED",
+      "dst": "DISCONNECT",
+      "condition": "timeout"
+    },
+    {
+      "src": "DATA_XFER",
+      "dst": "CONNECTED",
+      "condition": "(Ulnot data_ready)"
+    },
+    {
+      "src": "ADMIN",
+      "dst": "DATA_XFER",
+      "condition": "data_ready"
+    },
+    {
+      "src": "ADMIN",
+      "dst": "CONNECTED",
       "condition": "always"
     },
     {
-      "src": "ACCESS",
-      "dst": "IDLE",
-      "condition": "always"
-    },
-    {
-      "src": "LOCK",
+      "src": "DISCONNECT",
       "dst": "IDLE",
       "condition": "always"
     }

@@ -1,0 +1,16 @@
+{
+  "patches_applied": 1,
+  "total_vulnerabilities": 1,
+  "all_fixes": [
+    {
+      "state_name": "ADMIN",
+      "cwe": "CWE-1245",
+      "risk_score": 0.9555121064186096,
+      "fix_category": "Guard Insertion",
+      "fix_parameter": "privilege_check",
+      "fix_strictness": "strict"
+    }
+  ],
+  "original_file": "input/vulnerable_fsm.v",
+  "patched_file": "output/patched_fsm.v"
+}

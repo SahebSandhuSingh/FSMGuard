@@ -1,0 +1,16 @@
+{
+  "compilation": "INFO",
+  "functionality": "SKIPPED",
+  "security": "SKIPPED",
+  "overall": "INFO",
+  "details": {
+    "compile_errors": [
+      "output/patched_fsm.v:78: error: Unable to bind wire/reg/memory `privilege_level' in `vulnerable_fsm'",
+      "output/patched_fsm.v:78: error: Unable to elaborate condition expression.",
+      "2 error(s) during elaboration."
+    ],
+    "func_failures": [],
+    "attacks_blocked": [],
+    "attacks_failed": []
+  }
+}

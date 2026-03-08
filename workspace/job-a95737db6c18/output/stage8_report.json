@@ -1,0 +1,12 @@
+{
+  "state_name": "ADMIN",
+  "cwe": "CWE-1245",
+  "risk_score": 0.9555121064186096,
+  "fix_category": "Guard Insertion",
+  "fix_parameter": "privilege_check",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "SMGuard Patch Start ====\n\n\n\n// ============================================================\n// FSMGuard Patch - Guard Insertion\n// CWE: CWE-1245\n// Parameter: privilege_check\n// Strictness: strict\n// ============================================================\n// This patch enforces access control before entering ADMIN\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n  \n// Strict mode: Fallback to IDLE with alert if insufficient privilege\nalways @(posedge clk) begin\n    if (state == ADMIN) begin\n        \n        if (privilege_level != 2'b11) begin\n        \n            // alert_signal = 1'b1;  // Optional: add alert output to module\n            state <= IDLE;\n        end\n    end\nend\n  \n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================\n// ==== FSMGuard Patch End ====\n\nendmodule",
+  "original_file": "input/vulnerable_fsm.v",
+  "patched_file": "output/patched_fsm.v"
+}

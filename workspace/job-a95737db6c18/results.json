@@ -1,0 +1,190 @@
+{
+  "job_id": "job-a95737db6c18",
+  "filename": "vulnerable_fsm.v",
+  "workspace": "/Users/sahebsandhu/FSMGuard/workspace/job-a95737db6c18",
+  "stages": {
+    "stage3_4": {
+      "success": true,
+      "vulnerabilities": [
+        {
+          "state_name": "ADMIN",
+          "risk_score": 0.9555121064186096,
+          "severity": "CRITICAL",
+          "cwe": "CWE-1245",
+          "cwe_label": "Improper FSM Logic",
+          "recommended_fix": "Guard Insertion",
+          "attack_path": "IDLE \u2192 ADMIN",
+          "features": {
+            "in_degree": 3.0,
+            "out_degree": 1.0,
+            "self_loop": 1.0,
+            "reset_distance": 1.0,
+            "neighbor_risk": 1.0,
+            "is_terminal": 0.0,
+            "guarded": 1.0,
+            "privilege": 1.0,
+            "auth_bypass": 1.0,
+            "auth_sequence_completed": 0.0,
+            "path_bypasses_auth": 1.0,
+            "lock_signal_asserted": 0.0,
+            "privilege_escalation": 1.0
+          }
+        }
+      ],
+      "output_file": "/Users/sahebsandhu/FSMGuard/workspace/job-a95737db6c18/output/stage4_detection.json",
+      "stdout": "[INFO] Parsing as standard Verilog: /Users/sahebsandhu/FSMGuard/uploads/job-a95737db6c18/vulnerable_fsm.v\n======================================================================\nFSMGuard - Stage 1: Verilog FSM Extraction (Enhanced)\n======================================================================\n\n[1/6] Parsing Verilog file: /Users/sahebsandhu/FSMGuard/uploads/job-a95737db6c18/vulnerable_fsm.v\n      \u2713 AST generated successfully\n\n[2/6] Extracting FSM states...\n      \u2713 Found 5 states: ['IDLE', 'LOGIN', 'USER', 'ADMIN', 'ERROR']\n\n[3/6] Extracting FSM transitions...\n      (Handling nested conditions, multiple FSMs, self-loops)\n      \u2713 Found 7 transitions\n\n[4/6] Detecting reset state...\n      \u2713 Reset state: IDLE\n\n[5/6] Building and validating FSM data...\n      \u2713 FSM data validated\n\n[6/6] Saving FSM data to JSON...\nStage 01 complete. FSM data saved to: /var/folders/90/syl0r5w50zs4w_q659n5rq040000gn/T/fsm_temp_output.json\n\n======================================================================\n\n======================================================================\nFSMGuard ANALYSIS SUMMARY\n======================================================================\n\n\u274c Error during analysis: 'module'\n"
+    },
+    "stage5_10": {
+      "success": true,
+      "outputs": {
+        "stage5_output.json": [
+          {
+            "state_name": "ADMIN",
+            "risk_score": 0.9555121064186096,
+            "cwe": "CWE-1245",
+            "features": {
+              "in_degree": 3.0,
+              "out_degree": 1.0,
+              "self_loop": 1.0,
+              "reset_distance": 1.0,
+              "neighbor_risk": 1.0,
+              "is_terminal": 0.0,
+              "guarded": 1.0,
+              "privilege": 1.0,
+              "auth_bypass": 1.0,
+              "auth_sequence_completed": 0.0,
+              "path_bypasses_auth": 1.0,
+              "lock_signal_asserted": 0.0,
+              "privilege_escalation": 1.0
+            },
+            "neighbors_in": [
+              "ADMIN",
+              "IDLE",
+              "USER"
+            ],
+            "neighbors_out": [
+              "ADMIN"
+            ]
+          }
+        ],
+        "stage8_comprehensive_report.json": {
+          "patches_applied": 1,
+          "total_vulnerabilities": 1,
+          "all_fixes": [
+            {
+              "state_name": "ADMIN",
+              "cwe": "CWE-1245",
+              "risk_score": 0.9555121064186096,
+              "fix_category": "Guard Insertion",
+              "fix_parameter": "privilege_check",
+              "fix_strictness": "strict"
+            }
+          ],
+          "original_file": "input/vulnerable_fsm.v",
+          "patched_file": "output/patched_fsm.v"
+        },
+        "stage9_result.json": {
+          "compilation": "INFO",
+          "functionality": "SKIPPED",
+          "security": "SKIPPED",
+          "overall": "INFO",
+          "details": {
+            "compile_errors": [
+              "output/patched_fsm.v:78: error: Unable to bind wire/reg/memory `privilege_level' in `vulnerable_fsm'",
+              "output/patched_fsm.v:78: error: Unable to elaborate condition expression.",
+              "2 error(s) during elaboration."
+            ],
+            "func_failures": [],
+            "attacks_blocked": [],
+            "attacks_failed": []
+          }
+        },
+        "fsm_report.json": {
+          "design": {
+            "original_file": "input/vulnerable_fsm.v",
+            "patched_file": "output/patched_fsm.v",
+            "analyzed_at": "2026-03-08 05:53:06",
+            "total_states": 9,
+            "weak_states": 1
+          },
+          "detections": [
+            {
+              "state_name": "ADMIN",
+              "risk_score": 0.9555121064186096,
+              "cwe": "CWE-1245",
+              "cwe_name": "Improper FSM with Bypassed Auth"
+            }
+          ],
+          "fixes": [
+            {
+              "state_name": "ADMIN",
+              "cwe": "CWE-1245",
+              "category": "Guard Insertion",
+              "parameter": "privilege_check",
+              "strictness": "strict",
+              "fallback": "RESET"
+            }
+          ],
+          "verification": {
+            "compilation": "INFO",
+            "functionality": "SKIPPED",
+            "security": "SKIPPED",
+            "overall": "INFO"
+          },
+          "summary": {
+            "weak_states_detected": 1,
+            "vulnerabilities_found": 1,
+            "vulnerabilities_fixed": 1,
+            "verification_passed": true,
+            "design_safe": true
+          }
+        },
+        "patched_fsm.v": "/Users/sahebsandhu/FSMGuard/workspace/job-a95737db6c18/output/patched_fsm.v"
+      },
+      "stdout": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n  \u2502 FIXES APPLIED                                        \u2502\n  \u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n  \u2502 STATE     \u2502 FIX                     \u2502 STRICTNESS     \u2502\n  \u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n  \u2502 ADMIN     \u2502 Guard  + privileg       \u2502 strict         \u2502\n  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n  \u2502 VERIFICATION RESULTS                                 \u2502\n  \u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n  \u2502 Compilation         \u2502 INFO                           \u2502\n  \u2502 Functionality       \u2502 SKIPPED                        \u2502\n  \u2502 Security            \u2502 SKIPPED                        \u2502\n  \u2502 Overall             \u2502 INFO                           \u2502\n  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n  \u2502 FINAL STATUS                                         \u2502\n  \u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n  \u2502  Vulnerabilities Found:  1                           \u2502\n  \u2502  Vulnerabilities Fixed:  1                           \u2502\n  \u2502  Design Safe:            YES                         \u2502\n  \u2502  Patched File:           output/patched_fsm.v        \u2502\n  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  Generated by FSMGuard \u2014 Automated FSM Security Pipeline\n\n\u2713 Final report generated\n\u2713 Saved to: output/final_report.json\n\n\ud83d\udcca Summary:\n   Total vulnerabilities: 0\n   Patches applied: 0\n   Verification status: Unknown\n\n======================================================================\n\u2705 PIPELINE COMPLETE\n======================================================================\n\n\ud83d\udcc1 Output files:\n  - output/stage5_output.json\n  - output/stage8_report.json\n  - output/stage9_result.json\n  - output/final_report.json\n======================================================================\n",
+      "stderr": "Generating LALR tables\nWARNING: 183 shift/reduce conflicts\n"
+    }
+  },
+  "status": "completed",
+  "patched_file": "/Users/sahebsandhu/FSMGuard/workspace/job-a95737db6c18/output/patched_fsm.v",
+  "final_report": {
+    "design": {
+      "original_file": "input/vulnerable_fsm.v",
+      "patched_file": "output/patched_fsm.v",
+      "analyzed_at": "2026-03-08 05:53:06",
+      "total_states": 9,
+      "weak_states": 1
+    },
+    "detections": [
+      {
+        "state_name": "ADMIN",
+        "risk_score": 0.9555121064186096,
+        "cwe": "CWE-1245",
+        "cwe_name": "Improper FSM with Bypassed Auth"
+      }
+    ],
+    "fixes": [
+      {
+        "state_name": "ADMIN",
+        "cwe": "CWE-1245",
+        "category": "Guard Insertion",
+        "parameter": "privilege_check",
+        "strictness": "strict",
+        "fallback": "RESET"
+      }
+    ],
+    "verification": {
+      "compilation": "INFO",
+      "functionality": "SKIPPED",
+      "security": "SKIPPED",
+      "overall": "INFO"
+    },
+    "summary": {
+      "weak_states_detected": 1,
+      "vulnerabilities_found": 1,
+      "vulnerabilities_fixed": 1,
+      "verification_passed": true,
+      "design_safe": true
+    }
+  }
+}

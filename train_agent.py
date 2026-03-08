@@ -17,7 +17,7 @@ import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.env_checker import check_env
-from fsm_env import FSMGuardEnv, ACTION_NAMES
+from fsm_env import FSMGuardEnv, CATEGORY_NAMES, PARAMETER_NAMES, STRICTNESS_NAMES
 
 
 class FSMGuardCallback(BaseCallback):
@@ -166,10 +166,11 @@ def train_ppo_agent():
     
     # Custom policy network architecture
     # 3-layer networks for both policy (pi) and value (vf)
+    # Slightly larger to handle MultiDiscrete action space
     policy_kwargs = dict(
         net_arch=dict(
-            pi=[128, 128, 64],  # Policy network: 128 → 128 → 64
-            vf=[128, 128, 64]   # Value network:  128 → 128 → 64
+            pi=[256, 128, 64],  # Policy network: 256 → 128 → 64
+            vf=[256, 128, 64]   # Value network:  256 → 128 → 64
         )
     )
     
@@ -194,10 +195,10 @@ def train_ppo_agent():
     )
     
     print("  ✅ PPO agent configured")
-    print(f"     Policy Network: [128, 128, 64]")
-    print(f"     Value Network:  [128, 128, 64]")
+    print(f"     Policy Network: [256, 128, 64]")
+    print(f"     Value Network:  [256, 128, 64]")
     print(f"     Learning Rate:  3e-4")
-    print(f"     Total Actions:  9")
+    print(f"     Action Space:   MultiDiscrete([4, 3, 2])")
     
     # Step 4: Train agent with custom callback
     print("\n[4/5] Training agent...")

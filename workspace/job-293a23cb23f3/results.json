@@ -1,0 +1,78 @@
+{
+  "job_id": "job-293a23cb23f3",
+  "filename": "vulnerable_fsm.v",
+  "workspace": "/Users/sahebsandhu/FSMGuard/workspace/job-293a23cb23f3",
+  "stages": {
+    "stage3_4": {
+      "success": true,
+      "vulnerabilities": [
+        {
+          "state_name": "ADMIN",
+          "risk_score": 0.9555121064186096,
+          "severity": "CRITICAL",
+          "cwe": "CWE-1245",
+          "cwe_label": "Improper FSM Logic",
+          "recommended_fix": "Guard Insertion",
+          "attack_path": "IDLE \u2192 ADMIN",
+          "features": {
+            "in_degree": 3.0,
+            "out_degree": 1.0,
+            "self_loop": 1.0,
+            "reset_distance": 1.0,
+            "neighbor_risk": 1.0,
+            "is_terminal": 0.0,
+            "guarded": 1.0,
+            "privilege": 1.0,
+            "auth_bypass": 1.0,
+            "auth_sequence_completed": 0.0,
+            "path_bypasses_auth": 1.0,
+            "lock_signal_asserted": 0.0,
+            "privilege_escalation": 1.0
+          }
+        }
+      ],
+      "output_file": "/Users/sahebsandhu/FSMGuard/workspace/job-293a23cb23f3/output/stage4_detection.json",
+      "stdout": "[INFO] Parsing as standard Verilog: /Users/sahebsandhu/FSMGuard/uploads/job-293a23cb23f3/vulnerable_fsm.v\n======================================================================\nFSMGuard - Stage 1: Verilog FSM Extraction (Enhanced)\n======================================================================\n\n[1/6] Parsing Verilog file: /Users/sahebsandhu/FSMGuard/uploads/job-293a23cb23f3/vulnerable_fsm.v\n      \u2713 AST generated successfully\n\n[2/6] Extracting FSM states...\n      \u2713 Found 5 states: ['IDLE', 'LOGIN', 'USER', 'ADMIN', 'ERROR']\n\n[3/6] Extracting FSM transitions...\n      (Handling nested conditions, multiple FSMs, self-loops)\n      \u2713 Found 7 transitions\n\n[4/6] Detecting reset state...\n      \u2713 Reset state: IDLE\n\n[5/6] Building and validating FSM data...\n      \u2713 FSM data validated\n\n[6/6] Saving FSM data to JSON...\nStage 01 complete. FSM data saved to: /var/folders/90/syl0r5w50zs4w_q659n5rq040000gn/T/fsm_temp_output.json\n\n======================================================================\n\n======================================================================\nFSMGuard ANALYSIS SUMMARY\n======================================================================\n\n\u274c Error during analysis: 'module'\n"
+    },
+    "stage5_10": {
+      "success": true,
+      "outputs": {
+        "stage5_output.json": [
+          {
+            "state_name": "ADMIN",
+            "risk_score": 0.9555121064186096,
+            "cwe": "CWE-1245",
+            "features": {
+              "in_degree": 3.0,
+              "out_degree": 1.0,
+              "self_loop": 1.0,
+              "reset_distance": 1.0,
+              "neighbor_risk": 1.0,
+              "is_terminal": 0.0,
+              "guarded": 1.0,
+              "privilege": 1.0,
+              "auth_bypass": 1.0,
+              "auth_sequence_completed": 0.0,
+              "path_bypasses_auth": 1.0,
+              "lock_signal_asserted": 0.0,
+              "privilege_escalation": 1.0
+            },
+            "neighbors_in": [
+              "ADMIN",
+              "IDLE",
+              "USER"
+            ],
+            "neighbors_out": [
+              "ADMIN"
+            ]
+          }
+        ]
+      },
+      "stdout": ": 1194.1 KB\n  (Use train_agent.py to retrain or evaluate_agent.py to test)\n\n======================================================================\nSTAGE 8: PATCH GENERATION\n======================================================================\n\nGenerating patches for 1 weak states...\n\u2713 Using trained RL agent: models/fsm_ppo_best.zip\n\n[1/1] Patching state: ADMIN\n  \ud83e\udd16 AI Agent Decision:\n     Category: Guard Insertion\n     Parameter: privilege_check\n     Strictness: strict\n======================================================================\nFSMGuard - Stage 8: Patch Execution\n======================================================================\n\n[1/5] Loading Verilog file...\n  \u274c Failed to load Verilog: Verilog file not found: input/dma_timing_control_verilog.v\n  \u26a0\ufe0f  Patch failed\n\n======================================================================\n\u2713 Stage 8 complete: 0/1 patches applied\n======================================================================\n\n======================================================================\nSTAGE 10: FINAL REPORT GENERATION\n======================================================================\n\nGenerating comprehensive security report...\n======================================================================\nFSMGuard - Stage 10: Final Report Generator\n======================================================================\n\n[1/3] Loading pipeline outputs...\n\u26a0\ufe0f  Warning: stage8_report.json not found\n\u26a0\ufe0f  Warning: stage9_result.json not found\n  \u2705 Data loaded\n\n[2/3] Generating machine-readable report...\n\u26a0\ufe0f  Report generation error: 'NoneType' object has no attribute 'get'\n\n======================================================================\n\u2705 PIPELINE COMPLETE\n======================================================================\n\n\ud83d\udcc1 Output files:\n  - output/stage5_output.json\n  - output/stage8_report.json\n  - output/stage9_result.json\n  - output/final_report.json\n======================================================================\n",
+      "stderr": ""
+    }
+  },
+  "status": "completed",
+  "patched_file": null,
+  "final_report": null
+}

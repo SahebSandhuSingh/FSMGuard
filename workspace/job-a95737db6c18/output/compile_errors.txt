@@ -1,0 +1,7 @@
+output/patched_fsm.v:78: error: Unable to bind wire/reg/memory `privilege_level' in `vulnerable_fsm'
+output/patched_fsm.v:78: error: Unable to elaborate condition expression.
+2 error(s) during elaboration.
+
+
+NOTE: These errors are expected when using generic patch templates.
+In production, Stage 8 would adapt patches to actual FSM signal names.

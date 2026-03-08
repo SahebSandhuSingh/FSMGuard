@@ -1,0 +1,60 @@
+{# FSMGuard Template - Transition Pruning #}
+{# Security Property: Removes or redirects unsafe state transitions #}
+
+// ============================================================
+// FSMGuard Patch - {{ category_name }}
+// CWE: {{ cwe }}
+// Parameter: {{ parameter_name }}
+// Strictness: {{ strictness_name }}
+// ============================================================
+// This patch removes or redirects unsafe transition to {{ state_name }}
+// Added by FSMGuard Stage 08 based on RL agent decision
+
+{% if parameter == 0 %}
+  {# Parameter 0: full removal #}
+// Transition REMOVED by FSMGuard
+// CWE {{ cwe }} mitigation - full removal
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Transition blocked - redirect to {{ fallback }}
+        {{ state_var }} <= {{ fallback }};
+    end
+end
+
+{% elif parameter == 1 %}
+  {# Parameter 1: redirect to safe state #}
+// Transition REDIRECTED by FSMGuard
+// CWE {{ cwe }} mitigation - safe redirect
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        {% if states|length > 1 %}
+        // Unsafe transition redirected to {{ states[1] }}
+        {{ state_var }} <= {{ states[1] }};
+        {% else %}
+        // Unsafe transition redirected to {{ fallback }}
+        {{ state_var }} <= {{ fallback }};
+        {% endif %}
+    end
+end
+
+{% elif parameter == 2 %}
+  {# Parameter 2: safe_redirect with monitoring #}
+// Transition SAFELY REDIRECTED by FSMGuard with monitoring
+// CWE {{ cwe }} mitigation - monitored redirect
+always @(posedge {{ clk }}) begin
+    if ({{ state_var }} == {{ state_name }}) begin
+        // Unsafe transition detected - redirect
+        // alert_signal = 1'b1;  // Optional: add alert output to module
+        {% if states|length > 1 %}
+        {{ state_var }} <= {{ states[1] }};
+        {% else %}
+        {{ state_var }} <= {{ fallback }};
+        {% endif %}
+    end
+end
+
+{% endif %}
+
+// ============================================================
+// End FSMGuard Patch
+// ============================================================

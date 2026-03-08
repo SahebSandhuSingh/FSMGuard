@@ -25,7 +25,7 @@ const severityBadge: Record<string, string> = {
 const FixPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { vulnerabilities = [] } = (location.state as { vulnerabilities: Vulnerability[] }) || {};
+  const { vulnerabilities = [], jobId } = (location.state as { vulnerabilities: Vulnerability[]; jobId?: string }) || {};
   const [completed, setCompleted] = useState(false);
 
   const handleComplete = useCallback(() => {
@@ -102,8 +102,8 @@ const FixPage = () => {
 
           {/* Right — Pipeline + Output */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            <PipelineFlowchart onComplete={handleComplete} />
-            {completed && <PatchedOutput vulnerabilities={vulnerabilities} />}
+            <PipelineFlowchart onComplete={handleComplete} jobId={jobId} />
+            {completed && <PatchedOutput vulnerabilities={vulnerabilities} jobId={jobId} />}
           </div>
         </div>
       </div>

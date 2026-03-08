@@ -1,0 +1,12 @@
+{
+  "state_name": "STUCK",
+  "cwe": "CWE-1280",
+  "risk_score": 0.78,
+  "fix_category": "Deadlock Trap",
+  "fix_parameter": "lockdown",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - Deadlock Trap\n// CWE: CWE-1280\n// Parameter: lockdown\n// Strictness: strict\n// ============================================================\n// This patch adds deadlock detection for state STUCK\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Lockdown mode: Halt all operations on deadlock\nalways @(posedge clk) begin\n    if (current_state == STUCK) begin\n        // Critical deadlock - initiate lockdown\n        lockdown = 1'b1;\n        next_state = RESET;\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_11/patched_fsm.v"
+}

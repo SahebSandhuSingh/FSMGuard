@@ -1,0 +1,12 @@
+{
+  "state_name": "SECURE",
+  "cwe": "CWE-1298",
+  "risk_score": 0.89,
+  "fix_category": "State Re-encoding",
+  "fix_parameter": "both",
+  "fix_strictness": "strict",
+  "fallback": "RESET",
+  "patch_snippet": "// ============================================================\n// FSMGuard Patch - State Re-encoding\n// CWE: CWE-1298\n// Parameter: both\n// Strictness: strict\n// ============================================================\n// This patch re-encodes state SECURE for fault resistance\n// Added by FSMGuard Stage 08 based on RL agent decision\n\n\n  \n// Combined protection: Hamming distance + parity\n// Maximum fault resistance for critical state SECURE\nlocalparam SECURE_NEW = 4'b1101;  // Hamming distance >= 3 AND even parity\n\n// Parity check\nwire parity_SECURE;\nassign parity_SECURE = ^current_state;\n\nalways @(posedge clk) begin\n    if (current_state == SECURE) begin\n        // Dual-layer protection\n        encoded_state = SECURE_NEW;\n        \n        // Verify parity\n        if (parity_SECURE != expected_parity) begin\n            alert_signal = 1'b1;\n            next_state = RESET;\n        end\n    end\nend\n\n\n\n// ============================================================\n// End FSMGuard Patch\n// ============================================================",
+  "original_file": "input/sample_fsm.v",
+  "patched_file": "output/test_9/patched_fsm.v"
+}
