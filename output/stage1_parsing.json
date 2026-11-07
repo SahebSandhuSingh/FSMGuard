@@ -1,78 +1,50 @@
 {
-  "module": "DmaTimingControl",
   "states": [
-    "SI",
-    "S0",
-    "S1",
-    "S2",
-    "S3",
-    "S4"
+    "IDLE",
+    "LOGIN",
+    "USER",
+    "ADMIN",
+    "ERROR"
   ],
   "transitions": [
     {
-      "src": "SI",
-      "dst": "S0",
-      "condition": "VALID_DREQ0 || VALID_DREQ1 || VALID_DREQ2 || VALID_DREQ3"
+      "src": "IDLE",
+      "dst": "ADMIN",
+      "condition": "backdoor"
     },
     {
-      "src": "SI",
-      "dst": "SI",
-      "condition": "else"
+      "src": "IDLE",
+      "dst": "LOGIN",
+      "condition": "user_input"
     },
     {
-      "src": "S0",
-      "dst": "S1",
-      "condition": "HLDA"
+      "src": "LOGIN",
+      "dst": "USER",
+      "condition": "always"
     },
     {
-      "src": "S0",
-      "dst": "S0",
-      "condition": "!HLDA"
+      "src": "USER",
+      "dst": "ADMIN",
+      "condition": "user_input"
     },
     {
-      "src": "S0",
-      "dst": "SI",
-      "condition": "!EOP_N_in"
+      "src": "USER",
+      "dst": "ERROR",
+      "condition": "always"
     },
     {
-      "src": "S1",
-      "dst": "SI",
-      "condition": "!EOP_N_in"
+      "src": "ADMIN",
+      "dst": "ADMIN",
+      "condition": "always"
     },
     {
-      "src": "S1",
-      "dst": "S2",
-      "condition": "else"
-    },
-    {
-      "src": "S2",
-      "dst": "SI",
-      "condition": "!EOP_N_in"
-    },
-    {
-      "src": "S2",
-      "dst": "S3",
-      "condition": "else"
-    },
-    {
-      "src": "S3",
-      "dst": "SI",
-      "condition": "!EOP_N_in"
-    },
-    {
-      "src": "S3",
-      "dst": "S4",
-      "condition": "else"
+      "src": "ERROR",
+      "dst": "IDLE",
+      "condition": "always"
     }
   ],
-  "reset_state": "SI",
-  "state_count": 6,
-  "transition_count": 11,
-  "systemverilog_features": {
-    "enum_states_found": false,
-    "typedef_states_found": false,
-    "total_enum_states": 0,
-    "total_typedef_states": 0,
-    "total_parameter_states": 12
-  }
+  "reset_state": "IDLE",
+  "module": "vulnerable_fsm",
+  "state_count": 5,
+  "transition_count": 7
 }

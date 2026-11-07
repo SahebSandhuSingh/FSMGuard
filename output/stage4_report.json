@@ -1,5 +1,5 @@
 {
-  "design": "FSM_Design",
+  "design": "vulnerable_fsm",
   "total_states": 5,
   "weak_states_found": 1,
   "flagged_states": [

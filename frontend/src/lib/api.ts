@@ -113,11 +113,62 @@ export function getReportUrl(jobId: string, format: "json" | "txt" = "txt"): str
   return `${BASE_URL}/api/download/report/${jobId}?format=${format}`;
 }
 
+// ─────────────────────────────────────────
+// FSM graph data (states + transitions + per-state risk)
+// ─────────────────────────────────────────
+
+export interface FsmStateNode {
+  name: string;
+  flagged: boolean;
+  risk_score: number;
+  severity?: string | null;
+  cwe?: string | null;
+  cwe_label?: string | null;
+  recommended_fix?: string | null;
+  in_degree: number;
+  out_degree: number;
+  self_loop: boolean;
+  reset_distance: number;
+}
+
+export interface FsmTransition {
+  src: string;
+  dst: string;
+  condition: string;
+}
+
+export interface FsmGraphResponse {
+  job_id: string;
+  module: string;
+  reset_state: string | null;
+  states: FsmStateNode[];
+  transitions: FsmTransition[];
+  total_states: number;
+  flagged_count: number;
+}
+
+export async function getFsmGraph(jobId: string): Promise<FsmGraphResponse> {
+  const res = await fetch(`${BASE_URL}/api/fsm/${jobId}`);
+  if (!res.ok) throw new Error("Failed to fetch FSM graph");
+  return res.json();
+}
+
+export function getOriginalFileUrl(jobId: string): string {
+  return `${BASE_URL}/api/download/original/${jobId}`;
+}
+
+export async function fetchOriginalCode(jobId: string): Promise<string> {
+  const res = await fetch(getOriginalFileUrl(jobId));
+  if (!res.ok) throw new Error("Original file not found");
+  return res.text();
+}
+
 export async function fetchPatchedCode(jobId: string): Promise<string> {
   const res = await fetch(getPatchedFileUrl(jobId));
   if (!res.ok) throw new Error("Patched file not available yet");
   return res.text();
 }
+
 
 // ─────────────────────────────────────────
 // Poll until job reaches terminal state

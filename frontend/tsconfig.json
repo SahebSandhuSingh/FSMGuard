@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "downlevelIteration": true,
     "types":["node"],
     "baseUrl": ".",
     "paths": {

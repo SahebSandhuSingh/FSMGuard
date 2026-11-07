@@ -98,6 +98,30 @@ executor = ThreadPoolExecutor(max_workers=4)
 # HELPER FUNCTIONS
 # ============================================================
 
+def check_and_restore_job(job_id: str) -> bool:
+    """Lazily restore job status from disk if it exists in the workspace"""
+    if job_id in jobs:
+        return True
+        
+    job_dir = runner.workspace_dir / job_id
+    if job_dir.exists():
+        # Check if results.json or stage1_parsing.json exists
+        results_file = job_dir / "results.json"
+        stage1_file = job_dir / "output" / "stage1_parsing.json"
+        
+        if results_file.exists() or stage1_file.exists():
+            jobs[job_id] = JobStatus(
+                job_id=job_id,
+                status="completed",
+                progress=100,
+                message="Analysis complete (restored from disk)",
+                created_at=time.time(),
+                updated_at=time.time()
+            )
+            return True
+            
+    return False
+
 def validate_verilog_file(filename: str) -> bool:
     """Validate file extension"""
     return Path(filename).suffix.lower() in ALLOWED_EXTENSIONS
@@ -302,7 +326,7 @@ async def get_job_status(job_id: str):
     """
     Get current status of analysis job
     """
-    if job_id not in jobs:
+    if not check_and_restore_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found")
     
     return jobs[job_id]
@@ -312,7 +336,7 @@ async def get_results(job_id: str):
     """
     Get complete analysis results for a job
     """
-    if job_id not in jobs:
+    if not check_and_restore_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found")
     
     if jobs[job_id].status != "completed":
@@ -376,7 +400,7 @@ async def download_patched_file(job_id: str):
     """
     Download patched FSM Verilog file
     """
-    if job_id not in jobs:
+    if not check_and_restore_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found")
     
     job_dir = runner.workspace_dir / job_id
@@ -396,7 +420,7 @@ async def download_report(job_id: str, format: str = "json"):
     """
     Download security report (json or txt)
     """
-    if job_id not in jobs:
+    if not check_and_restore_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found")
     
     job_dir = runner.workspace_dir / job_id
@@ -419,12 +443,95 @@ async def download_report(job_id: str, format: str = "json"):
         media_type=media_type
     )
 
+@app.get("/api/download/original/{job_id}")
+async def download_original_file(job_id: str):
+    """
+    Download original uploaded FSM Verilog/SystemVerilog file
+    """
+    if not check_and_restore_job(job_id):
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    upload_path = UPLOAD_DIR / job_id
+    if not upload_path.exists():
+        raise HTTPException(status_code=404, detail="Upload directory not found")
+        
+    files = list(upload_path.glob("*.v")) + list(upload_path.glob("*.sv"))
+    if not files:
+        raise HTTPException(status_code=404, detail="Original uploaded file not found")
+        
+    return FileResponse(
+        path=str(files[0]),
+        filename=files[0].name,
+        media_type="text/plain"
+    )
+
+
+@app.get("/api/fsm/{job_id}")
+async def get_fsm_graph(job_id: str):
+    """
+    Return FSM graph data for visualisation:
+      - states / transitions / reset_state from stage 1 parsing
+      - per-state risk_score, flagged flag, fix recommendation, and graph
+        features (in_degree, out_degree, self_loop, reset_distance) merged
+        in from stage 4 detection.
+    """
+    if not check_and_restore_job(job_id):
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job_dir = runner.workspace_dir / job_id
+    stage1_path = job_dir / "output" / "stage1_parsing.json"
+    # stage4 is written either as stage4_detection.json or stage4_report.json
+    stage4_path = job_dir / "output" / "stage4_detection.json"
+    if not stage4_path.exists():
+        stage4_path = job_dir / "output" / "stage4_report.json"
+
+    if not stage1_path.exists():
+        raise HTTPException(status_code=404, detail="FSM graph data not available yet")
+
+    with open(stage1_path) as f:
+        stage1 = json.load(f)
+
+    flagged_by_name: Dict[str, Dict[str, Any]] = {}
+    if stage4_path.exists():
+        with open(stage4_path) as f:
+            stage4 = json.load(f)
+        for s in stage4.get("flagged_states", []) or stage4.get("vulnerabilities", []):
+            flagged_by_name[s.get("state_name", "")] = s
+
+    states_out = []
+    for name in stage1.get("states", []):
+        info = flagged_by_name.get(name, {})
+        feats = info.get("features", {}) or {}
+        states_out.append({
+            "name": name,
+            "flagged": name in flagged_by_name,
+            "risk_score": float(info.get("risk_score", 0.0)),
+            "severity": info.get("severity"),
+            "cwe": info.get("cwe"),
+            "cwe_label": info.get("cwe_label"),
+            "recommended_fix": info.get("recommended_fix"),
+            "in_degree": float(feats.get("in_degree", 0)),
+            "out_degree": float(feats.get("out_degree", 0)),
+            "self_loop": bool(feats.get("self_loop", 0)),
+            "reset_distance": float(feats.get("reset_distance", 0)),
+        })
+
+    return {
+        "job_id": job_id,
+        "module": stage1.get("module", "FSM"),
+        "reset_state": stage1.get("reset_state"),
+        "states": states_out,
+        "transitions": stage1.get("transitions", []),
+        "total_states": len(states_out),
+        "flagged_count": len(flagged_by_name),
+    }
+
 @app.get("/api/logs/{job_id}")
 async def get_job_logs(job_id: str):
     """
     Get pipeline execution logs for a job
     """
-    if job_id not in jobs:
+    if not check_and_restore_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found")
     
     if job_id in job_results:
