@@ -42,41 +42,123 @@ FSMGuard operates as a ten-stage pipeline that takes a Verilog or SystemVerilog 
 
 ## Architecture
 
+### Pipeline Flow
+
+```mermaid
+flowchart TD
+    INPUT["Verilog / SystemVerilog Source"]
+
+    S1["Stage 1: Parsing\n(PLY Lexer + Parser)"]
+    S2["Stage 2: Graph Construction\n(NetworkX DiGraph)"]
+    S3["Stage 3: Feature Extraction\n(13-dim vectors)"]
+    S4["Stage 4: Vulnerability Detection\n(Graph Attention Network)"]
+    S5["Stage 5: Subgraph Isolation\n(1-hop neighborhood)"]
+    S6["Stage 6: RL Environment\n(Gymnasium)"]
+    S7["Stage 7: Policy Training\n(PPO Agent)"]
+    S8["Stage 8: Patch Generation\n(Jinja2 Templates)"]
+    S9["Stage 9: Verification\n(Icarus Verilog)"]
+    S10["Stage 10: Reporting\n(JSON + Plaintext)"]
+
+    OUTPUT["Patched Design + Security Report"]
+
+    INPUT --> S1
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    S5 --> S6
+    S6 --> S7
+    S7 --> S8
+    S8 --> S9
+    S9 --> S10
+    S10 --> OUTPUT
+
+    S9 -- "Verification failed" --> S8
 ```
-Verilog / SystemVerilog Source
-        |
-        v
-  [Stage 1] Parser (PLY-based)
-        |
-        v
-  [Stage 2] Graph Construction (NetworkX)
-        |
-        v
-  [Stage 3] Feature Extraction (13-dim vectors)
-        |
-        v
-  [Stage 4] GAT Vulnerability Detection
-        |
-        v
-  [Stage 5] Subgraph Isolation
-        |
-        v
-  [Stage 6] Gymnasium RL Environment
-        |
-        v
-  [Stage 7] PPO Agent (Stable-Baselines3)
-        |
-        v
-  [Stage 8] Jinja2 Patch Generator
-        |
-        v
-  [Stage 9] Icarus Verilog Verification
-        |
-        v
-  [Stage 10] Report Generation
-        |
-        v
-  Patched Design + Security Report
+
+### System Architecture
+
+```mermaid
+flowchart LR
+    subgraph Analysis["Static Analysis"]
+        direction TB
+        P["Parser\n(src/parser)"]
+        G["Graph Builder\n(src/pipeline)"]
+        F["Feature Extractor\n(src/pipeline)"]
+        D["GAT Detector\n(src/pipeline)"]
+        P --> G --> F --> D
+    end
+
+    subgraph Repair["RL-Based Repair"]
+        direction TB
+        SUB["Subgraph\nExtractor"]
+        ENV["Gymnasium\nEnvironment"]
+        PPO["PPO Agent"]
+        PATCH["Patch\nGenerator"]
+        SUB --> ENV --> PPO --> PATCH
+    end
+
+    subgraph Verify["Verification"]
+        direction TB
+        IVER["Icarus Verilog\nCompiler"]
+        TB_F["Functional\nTestbench"]
+        TB_S["Security\nTestbench"]
+        REP["Report\nGenerator"]
+        IVER --> TB_F
+        IVER --> TB_S
+        TB_F --> REP
+        TB_S --> REP
+    end
+
+    subgraph Web["Web Interface"]
+        direction TB
+        API["FastAPI\nBackend"]
+        UI["React\nFrontend"]
+        UI --> API
+    end
+
+    Analysis --> Repair
+    Repair --> Verify
+    API --> Analysis
+    REP --> API
+```
+
+### Component Mapping
+
+```mermaid
+flowchart TD
+    subgraph src/parser
+        PV["parse_verilog_v2.py"]
+        PSV["parse_systemverilog.py"]
+    end
+
+    subgraph src/pipeline
+        CLI["cli.py\n(entry point)"]
+        GB["graph_builder.py\n(Stages 2-3)"]
+        VD["vulnerability_detector.py\n(Stage 4)"]
+        SE["subgraph_extractor.py\n(Stage 5)"]
+        PG["patch_generator.py\n(Stage 8)"]
+        VER["verifier.py\n(Stage 9)"]
+        RG["report_generator.py\n(Stage 10)"]
+        TPL["templates/\n(Jinja2)"]
+    end
+
+    subgraph src/rl
+        ENV["fsm_env.py\n(Stage 6)"]
+        TRAIN["train_agent.py\n(Stage 7)"]
+    end
+
+    CLI --> PV
+    CLI --> PSV
+    CLI --> GB
+    GB --> VD
+    VD --> SE
+    SE --> ENV
+    ENV --> TRAIN
+    TRAIN --> PG
+    PG --> TPL
+    PG --> VER
+    VER --> RG
 ```
 
 ---
