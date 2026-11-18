@@ -45,35 +45,76 @@ FSMGuard operates as a ten-stage pipeline that takes a Verilog or SystemVerilog 
 ### Pipeline Flow
 
 ```mermaid
-flowchart TD
-    INPUT["Verilog / SystemVerilog Source"]
+flowchart LR
+    INPUT(["Verilog / SystemVerilog\nSource File"])
 
-    S1["Stage 1: Parsing\n(PLY Lexer + Parser)"]
-    S2["Stage 2: Graph Construction\n(NetworkX DiGraph)"]
-    S3["Stage 3: Feature Extraction\n(13-dim vectors)"]
-    S4["Stage 4: Vulnerability Detection\n(Graph Attention Network)"]
-    S5["Stage 5: Subgraph Isolation\n(1-hop neighborhood)"]
-    S6["Stage 6: RL Environment\n(Gymnasium)"]
-    S7["Stage 7: Policy Training\n(PPO Agent)"]
-    S8["Stage 8: Patch Generation\n(Jinja2 Templates)"]
-    S9["Stage 9: Verification\n(Icarus Verilog)"]
-    S10["Stage 10: Reporting\n(JSON + Plaintext)"]
+    subgraph PARSE["Stage 1 -- Parsing"]
+        direction TB
+        S1["PLY Lexer + Parser"]
+    end
 
-    OUTPUT["Patched Design + Security Report"]
+    subgraph GRAPH["Stages 2-3 -- Graph + Features"]
+        direction TB
+        S2["Graph Construction\n(NetworkX DiGraph)"]
+        S3["Feature Extraction\n(13-dim vectors)"]
+        S2 --> S3
+    end
 
-    INPUT --> S1
-    S1 --> S2
-    S2 --> S3
-    S3 --> S4
-    S4 --> S5
-    S5 --> S6
-    S6 --> S7
-    S7 --> S8
-    S8 --> S9
-    S9 --> S10
-    S10 --> OUTPUT
+    subgraph DETECT["Stages 4-5 -- Detection"]
+        direction TB
+        S4["Vulnerability Detection\n(Graph Attention Network)"]
+        S5["Subgraph Isolation\n(1-hop neighborhood)"]
+        S4 --> S5
+    end
 
-    S9 -- "Verification failed" --> S8
+    subgraph RL["Stages 6-7 -- RL Repair"]
+        direction TB
+        S6["RL Environment\n(Gymnasium)"]
+        S7["Policy Training\n(PPO Agent)"]
+        S6 --> S7
+    end
+
+    subgraph PATCHVERIFY["Stages 8-10 -- Patch + Verify"]
+        direction TB
+        S8["Patch Generation\n(Jinja2 Templates)"]
+        S9["Verification\n(Icarus Verilog)"]
+        S10["Report Generation\n(JSON + Plaintext)"]
+        S8 --> S9
+        S9 --> S10
+        S9 -- "Failed" --> S8
+    end
+
+    OUTPUT(["Patched Design +\nSecurity Report"])
+
+    INPUT --> PARSE
+    PARSE --> GRAPH
+    GRAPH --> DETECT
+    DETECT --> RL
+    RL --> PATCHVERIFY
+    PATCHVERIFY --> OUTPUT
+
+    style INPUT fill:#1e293b,stroke:#38bdf8,color:#f0f9ff,stroke-width:2px
+    style OUTPUT fill:#064e3b,stroke:#34d399,color:#ecfdf5,stroke-width:2px
+
+    style PARSE fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe
+    style S1 fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+
+    style GRAPH fill:#312e81,stroke:#818cf8,color:#eef2ff
+    style S2 fill:#4338ca,stroke:#a5b4fc,color:#eef2ff
+    style S3 fill:#4338ca,stroke:#a5b4fc,color:#eef2ff
+
+    style DETECT fill:#7c2d12,stroke:#fb923c,color:#fff7ed
+    style S4 fill:#c2410c,stroke:#fdba74,color:#fff7ed
+    style S5 fill:#c2410c,stroke:#fdba74,color:#fff7ed
+
+    style RL fill:#581c87,stroke:#c084fc,color:#faf5ff
+    style S6 fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+    style S7 fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+
+    style PATCHVERIFY fill:#14532d,stroke:#4ade80,color:#f0fdf4
+    style S8 fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style S9 fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style S10 fill:#15803d,stroke:#86efac,color:#f0fdf4
 ```
 
 ### System Architecture
@@ -121,18 +162,40 @@ flowchart LR
     Repair --> Verify
     API --> Analysis
     REP --> API
+
+    style Analysis fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe
+    style P fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+    style G fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+    style F fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+    style D fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+
+    style Repair fill:#581c87,stroke:#c084fc,color:#faf5ff
+    style SUB fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+    style ENV fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+    style PPO fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+    style PATCH fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+
+    style Verify fill:#14532d,stroke:#4ade80,color:#f0fdf4
+    style IVER fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style TB_F fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style TB_S fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style REP fill:#15803d,stroke:#86efac,color:#f0fdf4
+
+    style Web fill:#7c2d12,stroke:#fb923c,color:#fff7ed
+    style API fill:#c2410c,stroke:#fdba74,color:#fff7ed
+    style UI fill:#c2410c,stroke:#fdba74,color:#fff7ed
 ```
 
 ### Component Mapping
 
 ```mermaid
 flowchart TD
-    subgraph src/parser
+    subgraph PARSERPKG["src/parser"]
         PV["parse_verilog_v2.py"]
         PSV["parse_systemverilog.py"]
     end
 
-    subgraph src/pipeline
+    subgraph PIPEPKG["src/pipeline"]
         CLI["cli.py\n(entry point)"]
         GB["graph_builder.py\n(Stages 2-3)"]
         VD["vulnerability_detector.py\n(Stage 4)"]
@@ -143,7 +206,7 @@ flowchart TD
         TPL["templates/\n(Jinja2)"]
     end
 
-    subgraph src/rl
+    subgraph RLPKG["src/rl"]
         ENV["fsm_env.py\n(Stage 6)"]
         TRAIN["train_agent.py\n(Stage 7)"]
     end
@@ -159,6 +222,24 @@ flowchart TD
     PG --> TPL
     PG --> VER
     VER --> RG
+
+    style PARSERPKG fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe
+    style PV fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+    style PSV fill:#0369a1,stroke:#7dd3fc,color:#f0f9ff
+
+    style PIPEPKG fill:#14532d,stroke:#4ade80,color:#f0fdf4
+    style CLI fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style GB fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style VD fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style SE fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style PG fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style VER fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style RG fill:#15803d,stroke:#86efac,color:#f0fdf4
+    style TPL fill:#166534,stroke:#86efac,color:#f0fdf4
+
+    style RLPKG fill:#581c87,stroke:#c084fc,color:#faf5ff
+    style ENV fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
+    style TRAIN fill:#7e22ce,stroke:#d8b4fe,color:#faf5ff
 ```
 
 ---
