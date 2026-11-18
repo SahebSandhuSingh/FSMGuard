@@ -6,7 +6,7 @@ This document summarizes all changes implemented across Stages 6, 7, and 8 of th
 
 ---
 
-## 🔄 STAGE 6 CHANGES - RL Environment (fsm_env.py)
+##  STAGE 6 CHANGES - RL Environment (fsm_env.py)
 
 ### Change 1: Action Space - Discrete → MultiDiscrete
 
@@ -113,7 +113,7 @@ info = {
 
 ---
 
-## 🤖 STAGE 7 CHANGES - PPO Training
+##  STAGE 7 CHANGES - PPO Training
 
 ### Change 1: Policy Network Architecture
 
@@ -202,7 +202,7 @@ Risk:       0.870
 
 ---
 
-## 🔧 STAGE 8 NEW - Patch Execution
+##  STAGE 8 NEW - Patch Execution
 
 ### Overview
 
@@ -262,7 +262,7 @@ Templates generate syntactically correct Verilog with:
 
 ---
 
-## 📊 TESTING & VALIDATION
+##  TESTING & VALIDATION
 
 ### Stage 6 Testing
 ```bash
@@ -292,7 +292,7 @@ python3 test_stage8.py       # Comprehensive validation (12 test cases)
 
 ---
 
-## 🔄 COMPLETE PIPELINE INTEGRATION
+##  COMPLETE PIPELINE INTEGRATION
 
 ```python
 # Stages 1-4: Parse, analyze, detect
@@ -319,7 +319,7 @@ result = stage8_pipeline("input/design.v", fix_spec)
 
 ---
 
-## 📦 DEPENDENCIES
+##  DEPENDENCIES
 
 ### New Requirements
 ```bash
@@ -334,7 +334,7 @@ pip3 install pyverilog networkx torch_geometric
 
 ---
 
-## ✅ VALIDATION RESULTS
+##  VALIDATION RESULTS
 
 ### Syntax Validation
 All files compile without errors:
@@ -346,15 +346,15 @@ python3 -m py_compile evaluate_agent.py
 python3 -m py_compile patch_gen.py
 python3 -m py_compile test_stage8.py
 ```
-**Result:** ✅ All files compile successfully
+**Result:**  All files compile successfully
 
 ### No Errors Detected
 Checked all modified/created files for linting errors.
-**Result:** ✅ Zero errors found
+**Result:**  Zero errors found
 
 ---
 
-## 🎯 KEY DESIGN PRINCIPLES
+##  KEY DESIGN PRINCIPLES
 
 ### Stage 6 (Environment)
 - **Structured Actions:** MultiDiscrete allows agent to learn each decision dimension independently
@@ -374,7 +374,7 @@ Checked all modified/created files for linting errors.
 
 ---
 
-## 📈 IMPROVEMENTS OVER PREVIOUS DESIGN
+##  IMPROVEMENTS OVER PREVIOUS DESIGN
 
 | Aspect | Before (Discrete) | After (MultiDiscrete) |
 |--------|-------------------|----------------------|
@@ -387,7 +387,7 @@ Checked all modified/created files for linting errors.
 
 ---
 
-## 🚀 NEXT STEPS
+##  NEXT STEPS
 
 1. **Train New Model:** Previous models incompatible with MultiDiscrete
    ```bash
@@ -405,30 +405,30 @@ Checked all modified/created files for linting errors.
 
 ---
 
-## 📝 FILES MODIFIED
+##  FILES MODIFIED
 
 ### Stage 6
-- ✅ [fsm_env.py](fsm_env.py) (340 lines, 10 changes)
+-  [fsm_env.py](fsm_env.py) (340 lines, 10 changes)
 
 ### Stage 7
-- ✅ [train_agent.py](train_agent.py) (3 changes)
-- ✅ [demo_training.py](demo_training.py) (1 change)
-- ✅ [evaluate_agent.py](evaluate_agent.py) (5 changes + new function)
+-  [train_agent.py](train_agent.py) (3 changes)
+-  [demo_training.py](demo_training.py) (1 change)
+-  [evaluate_agent.py](evaluate_agent.py) (5 changes + new function)
 
 ### Stage 8 (New)
-- ✅ [patch_gen.py](patch_gen.py) (380 lines)
-- ✅ [templates/guard.j2](templates/guard.j2) (104 lines)
-- ✅ [templates/prune.j2](templates/prune.j2) (52 lines)
-- ✅ [templates/reencode.j2](templates/reencode.j2) (88 lines)
-- ✅ [templates/deadlock.j2](templates/deadlock.j2) (68 lines)
-- ✅ [test_stage8.py](test_stage8.py) (334 lines)
-- ✅ [STAGE08_README.md](STAGE08_README.md) (Complete documentation)
+-  [patch_gen.py](patch_gen.py) (380 lines)
+-  [templates/guard.j2](templates/guard.j2) (104 lines)
+-  [templates/prune.j2](templates/prune.j2) (52 lines)
+-  [templates/reencode.j2](templates/reencode.j2) (88 lines)
+-  [templates/deadlock.j2](templates/deadlock.j2) (68 lines)
+-  [test_stage8.py](test_stage8.py) (334 lines)
+-  [STAGE08_README.md](STAGE08_README.md) (Complete documentation)
 
 **Total:** 7 files modified, 8 files created, 4 templates created
 
 ---
 
-## ⚠️ BREAKING CHANGES
+##  BREAKING CHANGES
 
 ### Action Space Change
 **Impact:** Previous trained models are **incompatible** with new environment.
@@ -447,21 +447,21 @@ Checked all modified/created files for linting errors.
 
 ---
 
-## 🎓 SUMMARY
+##  SUMMARY
 
 All requested changes have been successfully implemented:
 
-✅ **Stage 6:** Action space changed to MultiDiscrete([4, 3, 2])  
-✅ **Stage 6:** Observation space restructured for category/parameter/strictness  
-✅ **Stage 6:** New reward function for 3-part decision evaluation  
-✅ **Stage 6:** Enhanced info dictionary with fix_spec  
-✅ **Stage 7:** Updated policy_kwargs for larger network  
-✅ **Stage 7:** Added decode_action helper function  
-✅ **Stage 7:** Updated evaluation output format  
-✅ **Stage 8:** Created complete patch execution system  
-✅ **Stage 8:** Implemented all 4 Jinja2 templates  
-✅ **Stage 8:** Created comprehensive test suite  
-✅ **Stage 8:** Documented all functionality  
+ **Stage 6:** Action space changed to MultiDiscrete([4, 3, 2])  
+ **Stage 6:** Observation space restructured for category/parameter/strictness  
+ **Stage 6:** New reward function for 3-part decision evaluation  
+ **Stage 6:** Enhanced info dictionary with fix_spec  
+ **Stage 7:** Updated policy_kwargs for larger network  
+ **Stage 7:** Added decode_action helper function  
+ **Stage 7:** Updated evaluation output format  
+ **Stage 8:** Created complete patch execution system  
+ **Stage 8:** Implemented all 4 Jinja2 templates  
+ **Stage 8:** Created comprehensive test suite  
+ **Stage 8:** Documented all functionality  
 
 **Status:** All stages production-ready. Ready for retraining and integration.
 
@@ -470,4 +470,4 @@ All requested changes have been successfully implemented:
 **FSMGuard Implementation Update**  
 **Version:** 2.0 (MultiDiscrete)  
 **Date:** March 7, 2026  
-**Status:** ✅ Complete
+**Status:**  Complete

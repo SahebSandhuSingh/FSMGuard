@@ -6,7 +6,7 @@ FSMGuard now supports **SystemVerilog FSM constructs** in addition to standard V
 
 ---
 
-## ✅ Supported SystemVerilog Features
+##  Supported SystemVerilog Features
 
 ### 1. **Enum State Declarations**
 
@@ -82,7 +82,7 @@ endcase
 
 ---
 
-## ❌ Currently NOT Supported
+##  Currently NOT Supported
 
 ### Advanced SystemVerilog Features
 
@@ -100,7 +100,7 @@ Convert these advanced features to basic enum/typedef syntax before using FSMGua
 
 ---
 
-## 📖 Usage
+##  Usage
 
 ### Automatic Detection
 
@@ -133,14 +133,14 @@ python run_fsmguard.py input/fsm.sv --verbose
 Shows detected SystemVerilog features:
 ```
 SystemVerilog Features:
-  ├─ Enum states: 8
-  ├─ Typedef states: 8
-  └─ Parameter states: 0
+   Enum states: 8
+   Typedef states: 8
+   Parameter states: 0
 ```
 
 ---
 
-## 📝 Example Input
+##  Example Input
 
 **SystemVerilog FSM with Security Vulnerabilities:**
 
@@ -180,7 +180,7 @@ module security_fsm (
                 if (auth_valid)
                     next_state = AUTH_CHECK;
                 else if (debug_enable)
-                    next_state = DEBUG_MODE;  // ⚠️ VULNERABILITY!
+                    next_state = DEBUG_MODE;  //  VULNERABILITY!
                 else
                     next_state = IDLE;
             end
@@ -195,7 +195,7 @@ module security_fsm (
             PRIVILEGED: next_state = MEMORY_ACC;
             
             DEBUG_MODE: begin
-                // ⚠️ Can access memory from debug without auth
+                //  Can access memory from debug without auth
                 next_state = MEMORY_ACC;
             end
             
@@ -210,7 +210,7 @@ endmodule
 
 ---
 
-## 🔍 Detection Output
+##  Detection Output
 
 FSMGuard will detect:
 
@@ -224,7 +224,7 @@ FSMGuard will detect:
 
 ---
 
-## 🛠️ Implementation Details
+##  Implementation Details
 
 ### Parser Architecture
 
@@ -232,42 +232,42 @@ FSMGuard will detect:
 Input File (.sv)
       ↓
 [Preprocessing]
-  ├─ Extract enum states (regex)
-  ├─ Extract typedef definitions (regex)
-  ├─ Normalize always_ff → always
-  ├─ Normalize always_comb → always @(*)
-  ├─ Convert logic → reg
-  └─ Remove unique/priority keywords
+   Extract enum states (regex)
+   Extract typedef definitions (regex)
+   Normalize always_ff → always
+   Normalize always_comb → always @(*)
+   Convert logic → reg
+   Remove unique/priority keywords
       ↓
 [Standard Verilog Parser]
-  ├─ PyVerilog AST parsing
-  ├─ Extract parameter states
-  └─ Extract transitions
+   PyVerilog AST parsing
+   Extract parameter states
+   Extract transitions
       ↓
 [Merge Results]
-  ├─ Combine enum + parameter states
-  ├─ Remove duplicates
-  └─ Generate FSM JSON
+   Combine enum + parameter states
+   Remove duplicates
+   Generate FSM JSON
 ```
 
 ### File Structure
 
 ```
 parser/
-  ├─ parse_verilog.py          # Original Verilog parser
-  ├─ parse_verilog_v2.py        # Enhanced Verilog parser
-  └─ parse_systemverilog.py     # NEW: SystemVerilog wrapper
+   parse_verilog.py          # Original Verilog parser
+   parse_verilog_v2.py        # Enhanced Verilog parser
+   parse_systemverilog.py     # NEW: SystemVerilog wrapper
 
 run_fsmguard.py                 # NEW: Unified CLI with auto-detection
 
 input/
-  ├─ sample_fsm.v               # Standard Verilog
-  └─ systemverilog_fsm.sv       # NEW: SystemVerilog examples
+   sample_fsm.v               # Standard Verilog
+   systemverilog_fsm.sv       # NEW: SystemVerilog examples
 ```
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Test SystemVerilog Parsing
 
@@ -296,9 +296,9 @@ Transitions found: 12
 Reset state: RESET
 
 SystemVerilog Features:
-  ├─ Enum states: 8
-  ├─ Typedef states: 8
-  └─ Parameter states: 0
+   Enum states: 8
+   Typedef states: 8
+   Parameter states: 0
 
 States: RESET, IDLE, AUTH_CHECK, PRIVILEGED, MEMORY_ACC, DEBUG_MODE, LOCKDOWN, ERROR
 
@@ -306,37 +306,37 @@ States: RESET, IDLE, AUTH_CHECK, PRIVILEGED, MEMORY_ACC, DEBUG_MODE, LOCKDOWN, E
 STAGES 2-4: GRAPH CONSTRUCTION, FEATURES & GNN DETECTION
 ======================================================================
 
-⚠️  Weak states detected: 2
-  ├─ DEBUG_MODE: 87.31% risk
-  └─ MEMORY_ACC: 72.45% risk
+  Weak states detected: 2
+   DEBUG_MODE: 87.31% risk
+   MEMORY_ACC: 72.45% risk
 
 ======================================================================
 FSMGuard ANALYSIS SUMMARY
 ======================================================================
 
-📦 Module: security_fsm
+ Module: security_fsm
    States: 8
    Transitions: 12
 
-✨ SystemVerilog features detected:
-   └─ Enum states: 8
+ SystemVerilog features detected:
+    Enum states: 8
 
-🔍 Security Analysis:
+ Security Analysis:
    Total states analyzed: 8
    Weak states detected: 2
 
-⚠️  VULNERABILITIES FOUND:
+  VULNERABILITIES FOUND:
    1. DEBUG_MODE
-      Risk: 87.3% | CWE-1233 | 🔴 CRITICAL
+      Risk: 87.3% | CWE-1233 |  CRITICAL
    2. MEMORY_ACC
-      Risk: 72.4% | CWE-1245 | 🟠 HIGH
+      Risk: 72.4% | CWE-1245 |  HIGH
 
 ======================================================================
 ```
 
 ---
 
-## 📚 API Reference
+##  API Reference
 
 ### `parse_systemverilog_fsm(filepath)`
 
@@ -377,7 +377,7 @@ Check if file contains SystemVerilog syntax.
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Error: "enum not recognized"
 
@@ -401,7 +401,7 @@ Check if file contains SystemVerilog syntax.
 
 ---
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 Planned SystemVerilog features:
 
@@ -413,7 +413,7 @@ Planned SystemVerilog features:
 
 ---
 
-## 📞 Support
+##  Support
 
 For issues with SystemVerilog parsing:
 
@@ -424,7 +424,7 @@ For issues with SystemVerilog parsing:
 
 ---
 
-## 📄 License
+##  License
 
 Same as FSMGuard main project.
 

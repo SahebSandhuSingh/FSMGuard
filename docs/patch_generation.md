@@ -5,21 +5,21 @@ FSMGuard is a complete hardware security analysis pipeline for Finite State Mach
 
 ## Implementation Status
 
-### ✅ Stage 1: Verilog FSM Extraction (Enhanced)
+###  Stage 1: Verilog FSM Extraction (Enhanced)
 **File:** `parser/parse_verilog_v2.py`
 
 **Features Implemented:**
-- ✅ PyVerilog AST parsing (avoids iverilog dependency)
-- ✅ State extraction from parameters/localparams
-- ✅ Transition extraction from case statements
-- ✅ **Nested condition handling** (combines with &&)
-- ✅ Reset state detection
-- ✅ **Multiple FSM support** (merges all FSMs)
-- ✅ **Self-loop detection**
-- ✅ **Default case handling**
-- ✅ Validation (duplicate removal, integrity checks)
-- ✅ JSON output to `output/stage1_output.json`
-- ✅ Regex-based condition cleaning
+-  PyVerilog AST parsing (avoids iverilog dependency)
+-  State extraction from parameters/localparams
+-  Transition extraction from case statements
+-  **Nested condition handling** (combines with &&)
+-  Reset state detection
+-  **Multiple FSM support** (merges all FSMs)
+-  **Self-loop detection**
+-  **Default case handling**
+-  Validation (duplicate removal, integrity checks)
+-  JSON output to `output/stage1_output.json`
+-  Regex-based condition cleaning
 
 **Output Format:**
 ```json
@@ -35,14 +35,14 @@ FSMGuard is a complete hardware security analysis pipeline for Finite State Mach
 
 ---
 
-### ✅ Stage 2 & 3: Graph Construction & Feature Generation
+###  Stage 2 & 3: Graph Construction & Feature Generation
 **File:** `fsmguard_pipeline.py`
 
 **Features Implemented:**
-- ✅ NetworkX DiGraph construction
-- ✅ PyTorch Geometric Data object creation
-- ✅ Edge index tensor generation [2, num_edges]
-- ✅ **13-dimensional feature vector per state:**
+-  NetworkX DiGraph construction
+-  PyTorch Geometric Data object creation
+-  Edge index tensor generation [2, num_edges]
+-  **13-dimensional feature vector per state:**
 
 **Structural Features (9):**
 1. in_degree
@@ -68,29 +68,29 @@ FSMGuard is a complete hardware security analysis pipeline for Finite State Mach
 
 ---
 
-### ✅ Stage 4: Security Analysis & Report Generation
+###  Stage 4: Security Analysis & Report Generation
 **File:** `stage4_security_report.py`
 
 **Features Implemented:**
-- ✅ GAT model architecture (exact specification)
+-  GAT model architecture (exact specification)
   - Conv1: 13 → 32 features (4 heads)
   - Conv2: 128 → 16 features (2 heads)
   - Conv3: 32 → 8 features (2 heads)
   - Classifier: 16 → 2 classes
-- ✅ Model loading from `fsm_gat_model.pth`
-- ✅ Inference with softmax probabilities
-- ✅ Threshold-based weak state detection (default: 0.40)
-- ✅ **Rule-based CWE classification:**
+-  Model loading from `fsm_gat_model.pth`
+-  Inference with softmax probabilities
+-  Threshold-based weak state detection (default: 0.40)
+-  **Rule-based CWE classification:**
   - CWE-1245: Improper FSM Logic
   - CWE-1233: Security Lock Not Set
   - CWE-1298: Hardware Logic Race Condition
   - CWE-1280: Access Control Check After Asset Access
-- ✅ Severity computation (CRITICAL/HIGH/MEDIUM)
-- ✅ Fix recommendation mapping
-- ✅ **Attack path computation** using NetworkX shortest path
-- ✅ Human-readable terminal report
-- ✅ JSON report output to `output/stage4_report.json`
-- ✅ Feature display with YES/NO for boolean features
+-  Severity computation (CRITICAL/HIGH/MEDIUM)
+-  Fix recommendation mapping
+-  **Attack path computation** using NetworkX shortest path
+-  Human-readable terminal report
+-  JSON report output to `output/stage4_report.json`
+-  Feature display with YES/NO for boolean features
 
 **Report Format:**
 ```
@@ -163,48 +163,48 @@ python3 test_complete_pipeline.py
 
 ## Key Features & Requirements Met
 
-### Stage 1 Additional Requirements ✅
-- ✅ Regex library (re) for condition cleaning
-- ✅ Nested condition support (AND operator)
-- ✅ Multiple FSM merging
-- ✅ Self-transition detection
-- ✅ Default case handling
-- ✅ Comprehensive validation
-- ✅ JSON output with directory creation
+### Stage 1 Additional Requirements 
+-  Regex library (re) for condition cleaning
+-  Nested condition support (AND operator)
+-  Multiple FSM merging
+-  Self-transition detection
+-  Default case handling
+-  Comprehensive validation
+-  JSON output with directory creation
 
-### Stage 2 & 3 Requirements ✅
-- ✅ NetworkX DiGraph
-- ✅ PyTorch Geometric Data
-- ✅ All 13 features computed correctly
-- ✅ Safe path distance computation (handles disconnected graphs)
-- ✅ Production-quality error handling
+### Stage 2 & 3 Requirements 
+-  NetworkX DiGraph
+-  PyTorch Geometric Data
+-  All 13 features computed correctly
+-  Safe path distance computation (handles disconnected graphs)
+-  Production-quality error handling
 
-### Stage 4 Requirements ✅
-- ✅ Exact GAT architecture
-- ✅ Model loading and inference
-- ✅ Threshold-based detection (0.40)
-- ✅ Rule-based CWE classification (no if-else chains)
-- ✅ Severity levels (CRITICAL/HIGH/MEDIUM)
-- ✅ Fix recommendations
-- ✅ Attack path computation
-- ✅ Terminal and JSON reports
-- ✅ Feature display names
-- ✅ Boolean features as YES/NO
-- ✅ Robust error handling
+### Stage 4 Requirements 
+-  Exact GAT architecture
+-  Model loading and inference
+-  Threshold-based detection (0.40)
+-  Rule-based CWE classification (no if-else chains)
+-  Severity levels (CRITICAL/HIGH/MEDIUM)
+-  Fix recommendations
+-  Attack path computation
+-  Terminal and JSON reports
+-  Feature display names
+-  Boolean features as YES/NO
+-  Robust error handling
 
 ---
 
 ## Libraries Used
 
 **Allowed and Used:**
-- ✅ pyverilog (Stage 1)
-- ✅ networkx (Stages 2, 3, 4)
-- ✅ numpy (Stages 2, 3)
-- ✅ torch (Stages 2, 3, 4)
-- ✅ torch_geometric (Stages 2, 3, 4)
-- ✅ json (Stages 1, 4)
-- ✅ os (All stages)
-- ✅ re (Stage 1)
+-  pyverilog (Stage 1)
+-  networkx (Stages 2, 3, 4)
+-  numpy (Stages 2, 3)
+-  torch (Stages 2, 3, 4)
+-  torch_geometric (Stages 2, 3, 4)
+-  json (Stages 1, 4)
+-  os (All stages)
+-  re (Stage 1)
 
 **No unauthorized libraries used.**
 
@@ -214,41 +214,41 @@ python3 test_complete_pipeline.py
 
 ### Test Run Output
 ```
-✅ Stage 1: 3 states extracted (S0, S1, S2) with 3 transitions
-✅ Stage 2 & 3: Feature matrix [3, 13], Edge index [2, 3]
-✅ Stage 4: 3 weak states detected with proper CWE classification
-✅ Attack paths computed: S0, S0→S1, S0→S1→S2
-✅ JSON reports generated successfully
+ Stage 1: 3 states extracted (S0, S1, S2) with 3 transitions
+ Stage 2 & 3: Feature matrix [3, 13], Edge index [2, 3]
+ Stage 4: 3 weak states detected with proper CWE classification
+ Attack paths computed: S0, S0→S1, S0→S1→S2
+ JSON reports generated successfully
 ```
 
 ### Outputs Verified
-- ✅ `output/stage1_output.json` - Valid JSON with FSM data
-- ✅ `output/stage4_report.json` - Valid JSON with security report
-- ✅ Terminal output formatted correctly
-- ✅ All 13 features computed per state
-- ✅ CWE classification working
-- ✅ Severity levels computed
-- ✅ Attack paths identified
+-  `output/stage1_output.json` - Valid JSON with FSM data
+-  `output/stage4_report.json` - Valid JSON with security report
+-  Terminal output formatted correctly
+-  All 13 features computed per state
+-  CWE classification working
+-  Severity levels computed
+-  Attack paths identified
 
 ---
 
 ## Production Readiness
 
-### Code Quality ✅
+### Code Quality 
 - Clean, modular Python code
 - Comprehensive docstrings
 - Type hints where appropriate
 - Error handling throughout
 - No hard-coded values (configurable)
 
-### Robustness ✅
+### Robustness 
 - Handles empty FSMs
 - Handles disconnected graphs
 - Handles missing files
 - Handles missing model weights
 - Validates all inputs
 
-### Documentation ✅
+### Documentation 
 - Function-level documentation
 - Module-level documentation
 - Usage examples
@@ -292,4 +292,4 @@ For questions or issues, refer to:
 
 **FSMGuard Version:** 1.0  
 **Implementation Date:** March 7, 2026  
-**Status:** ✅ Production Ready (pending trained model weights)
+**Status:**  Production Ready (pending trained model weights)

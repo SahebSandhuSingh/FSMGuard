@@ -81,10 +81,10 @@ Detects and handles deadlocked states.
 ```
 patch_gen.py           # Main executor
 templates/
-  ├── guard.j2         # Guard insertion templates
-  ├── prune.j2         # Transition pruning templates
-  ├── reencode.j2      # State re-encoding templates
-  └── deadlock.j2      # Deadlock trap templates
+   guard.j2         # Guard insertion templates
+   prune.j2         # Transition pruning templates
+   reencode.j2      # State re-encoding templates
+   deadlock.j2      # Deadlock trap templates
 ```
 
 ## Usage
@@ -267,5 +267,5 @@ A: No. Stage 08 only applies patches. Verification happens in Stage 09.
 
 **FSMGuard Stage 08**  
 Version: 1.0  
-Status: ✅ Production Ready  
+Status:  Production Ready  
 Date: March 7, 2026

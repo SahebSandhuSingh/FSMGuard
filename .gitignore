@@ -27,7 +27,7 @@ parsetab.py
 .DS_Store
 Thumbs.db
 
-# Model weights (large binary files)
+# Model weights (large binary files — download separately)
 models/*.pth
 models/*.zip
 *.pth
@@ -40,6 +40,7 @@ logs/
 output/
 uploads/
 workspace/
+input/
 
 # Node.js
 frontend/node_modules/
@@ -49,4 +50,3 @@ frontend/tsconfig.tsbuildinfo
 # Environment variables
 .env
 .env.local
-

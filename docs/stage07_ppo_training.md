@@ -125,10 +125,10 @@ Then open http://localhost:6006 in your browser.
 ## Expected Results
 
 After 200K training steps, the agent should:
-- ✅ Select correct fix category for each CWE >85% of time
-- ✅ Achieve average episode reward >50
-- ✅ Maintain sequential coherence (same fixes for same CWEs)
-- ✅ Avoid repetitive action patterns
+-  Select correct fix category for each CWE >85% of time
+-  Achieve average episode reward >50
+-  Maintain sequential coherence (same fixes for same CWEs)
+-  Avoid repetitive action patterns
 
 ## Troubleshooting
 

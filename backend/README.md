@@ -4,20 +4,20 @@ Complete REST API for the FSMGuard automated FSM security analysis pipeline.
 
 ## Features
 
-- ✅ **File Upload**: Upload Verilog/SystemVerilog designs
-- ✅ **Async Analysis**: Background pipeline execution with progress tracking
-- ✅ **Real-time Status**: Check job progress and status
-- ✅ **Results API**: Retrieve complete analysis results
-- ✅ **File Downloads**: Download patched designs and security reports
-- ✅ **Job Management**: List, track, and clean up analysis jobs
+-  **File Upload**: Upload Verilog/SystemVerilog designs
+-  **Async Analysis**: Background pipeline execution with progress tracking
+-  **Real-time Status**: Check job progress and status
+-  **Results API**: Retrieve complete analysis results
+-  **File Downloads**: Download patched designs and security reports
+-  **Job Management**: List, track, and clean up analysis jobs
 
 ## Architecture
 
 ```
 FSMGuard Backend
-├── api.py              # FastAPI REST endpoints
-├── pipeline_runner.py  # Pipeline execution engine
-└── requirements.txt    # Backend dependencies
+ api.py              # FastAPI REST endpoints
+ pipeline_runner.py  # Pipeline execution engine
+ requirements.txt    # Backend dependencies
 ```
 
 ## Installation
